@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <!--
+
+    mergelyでuuidの生成、localStorageへの保存
+    mergely_for_progress_board {
+        [[kadai_filename]]: {
+            date,
+            name,
+        },
+        ...
+    }
+    課題チェックに通った時、mergely_for_progress_boardに名前がある（すでに正解済み）場合は、その名前を表示
+    ない場合は、デフォルトの名前を表示してOKボタンでfirestoreに書き込み
+    firestoreへは kadai_filenameのフィールドに name を arrayUnionで書き込む
+
+    firestore ドキュメント名 progress_board_for_mergely
+    フィールドは、55個の課題ファイル名、フィールドの値はarrayで正解済みの名前一覧、時間ソートされている
+
+    progress_board_for_mergely.html
+    ドキュメント mergely_for_progress_boardをlisten
+    firestoreからデータを受け取って画面を更新する
+
+
+    -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>問題進捗ボード</title>
+    <style>
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #problem-board {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 8px;
+            padding: 12px;
+            flex-grow: 1;
+            justify-content: center;
+            align-content: flex-start;
+        }
+
+        .problem-card {
+            background-color: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            padding: 4px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 120px;
+            max-height: 240px;
+        }
+
+        .problem-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #555;
+            margin-bottom: 2px;
+            text-align: center;
+        }
+
+        .participants {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            margin-top: auto;
+        }
+
+        .first-four-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 3px;
+            justify-items: center;
+            align-items: center;
+        }
+
+        .participant_first {
+            background-color: #e3f2fd;
+            border: 1px solid #bbdefb;
+            border-radius: 4px;
+            padding: 1px 3px;
+            font-size: 1.6em;
+            color: #424242;
+            white-space: nowrap;
+            text-align: center;
+            max-width: 120px;
+            width: 100%;
+            box-sizing: border-box;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .participant_latest {
+            background-color: #f0f0f0;
+            border: 1px solid #cccccc;
+            border-radius: 6px;
+            padding: 2px;
+            font-size: 1.0em;
+            font-weight: bold;
+            color: #616161;
+            margin-top: 0px;
+            max-width: 240px;
+            width: 100%;
+            box-sizing: border-box;
+            text-align: center;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+    </style>
+</head>
+
+<body>
+    <main id="problem-board">
+    </main>
+    <script type="module">
+        const kadai_filenames = ["py01_print.py", "py02_print.py", "py03_num_assign.py", "py04_str_assign.py", "py05_input_str.py", "py06_input_num.py", "py07_print.py", "py08_print2.py", "py09_assign.py", "py10_assign2.py", "py11_assign3.py", "py12_for1.py", "py13_for2.py", "py14_for3.py", "py15_for4.py", "py16_input.py", "py17_input2.py", "py18_sum_ave.py", "py19_increment.py", "py20_multiple.py", "py21_if.py", "py22_if_else.py", "py23_if_if.py", "py24_if_elif_else.py", "py25_if_elif_elif.py", "py26_nest_if.py", "py27_assign.py", "py28_if.py", "py29_if_and.py", "py30_if_or.py", "py31_if_and_of_1.py", "py32_if_and_or_2.py", "py33_if_not_1.py", "py34_if_not_2.py", "py35_for.py", "py36_range1.py", "py37_range2.py", "py38_range3.py", "py39_list1.py", "py40_string1.py", "py41_string2.py", "py42_string_num.py", "py43_string.py", "py44_if_string1.py", "py45_if_string2.py", "py46_if_string3.py", "py47_assign1.py", "py48_assign2.py", "py49_assign3.py", "py50_range.py", "py51_odd.py", "py52_multiple.py", "py53_sum.py", "py54_count.py", "py55_if_for.py"];
+        const params = {
+            max_students: 25,
+        };
+        /**
+         * 正解人数に基づいてHSLカラーを生成するヘルパー関数
+         * 色相(hue)を黄色系(60)から緑系(120)へ、明度(lightness)を暗い(30%)から明るい(80%)へ補間します。
+         * 彩度(saturation)は高め(90%)で固定し、鮮やかさを保ちます。
+         * @param {number} count 現在の正解人数
+         * @param {number} maxCount 最大正解人数
+         * @returns {string} HSLカラー文字列
+         */
+        function getColorByCorrectCount(count, maxCount) {
+            const yellowHue = 60; // 黄色
+            const greenHue = 120; // 緑色
+            const minLightness = 30; // 暗い色 (正解人数0の場合)
+            const maxLightness = 80; // 明るい色 (正解人数maxCountの場合)
+            const saturation = 90; // 高い彩度で固定
+
+            const minCount = 0;
+
+            // countがmaxCountを超えないようにクリップ
+            const clampedCount = Math.min(count, maxCount);
+
+            // 0-1の範囲に正規化
+            const ratio = (clampedCount - minCount) / (maxCount - minCount);
+
+            // 色相を線形補間 (黄色から緑へ)
+            const hue = yellowHue + (greenHue - yellowHue) * ratio;
+
+            // 明度を線形補間 (暗い色から明るい色へ)
+            const lightness = minLightness + (maxLightness - minLightness) * ratio;
+
+            return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+        }
+        const draw_card = (id, num = 0) => {
+            const card_elem = document.getElementById(id);
+            card_elem.style.backgroundColor = getColorByCorrectCount(num, params.max_students);
+            card_elem.querySelector(".problem-title").textContent = `${id} (${num}名)`;
+        }
+        const build_html = () => {
+            const problemBoard = document.getElementById('problem-board');
+
+            for (let i = 0; i < kadai_filenames.length; i++) {
+                const problemCard = document.createElement('div');
+                problemCard.id = kadai_filenames[i];
+                problemCard.classList.add('problem-card');
+
+                // 問題タイトルと正解人数を横に表示
+                const problemTitle = document.createElement('div');
+                problemTitle.classList.add('problem-title');
+                problemCard.appendChild(problemTitle);
+
+                // 学生名を表示するコンテナ
+                const studentNamesContainer = document.createElement('div');
+                studentNamesContainer.classList.add('participants');
+
+
+                // 先着4名を表示するためのグリッドコンテナ
+                const firstFourContainer = document.createElement('div');
+                firstFourContainer.classList.add('first-four-container');
+
+                [...Array(4)].forEach((_, i) => {
+                    const nameSpan = document.createElement('span');
+                    nameSpan.classList.add('participant_first');
+                    nameSpan.textContent = "";
+                    firstFourContainer.appendChild(nameSpan);
+                })
+                studentNamesContainer.appendChild(firstFourContainer);
+
+
+                // 最新1名を表示 (正解者がいれば常に表示)
+                const latestNameSpan = document.createElement('span');
+                latestNameSpan.classList.add('participant_latest');
+                studentNamesContainer.appendChild(latestNameSpan);
+
+                problemCard.appendChild(studentNamesContainer);
+                problemBoard.appendChild(problemCard);
+
+                draw_card(kadai_filenames[i])
+            }
+        }
+        const firestore = await import("./libs/firestore.js");
+        const init_firestore = async () => {
+            kadai_filenames.forEach(e => {
+                firestore.save(e, { kadai_filename: e, participants: [] })
+            })
+        };
+        // init_firestore();
+
+        build_html();
+
+        const all_data = [];
+        kadai_filenames.forEach(e => {
+            firestore.listen(e, data => {
+                console.log(data);
+                all_data.push(data);
+                const card_elem = document.getElementById(data.kadai_filename);
+
+                const participaint_elems = card_elem.querySelectorAll("span");
+                data.participants?.slice(0, 4).forEach((p, i) => {
+                    participaint_elems[i].textContent = p;
+                })
+                participaint_elems[participaint_elems.length - 1].textContent = data.participants?.slice(-1)[0];
+                draw_card(data.kadai_filename, data.participants?.length)
+            })
+        });
+
+        // 保存機能 (firestoreのエクスポートは課金対象)
+        document.addEventListener('keydown', function (event) {
+            if ("s" === event.key) {
+                if (true === confirm("データをJSONで保存します。よろしいですか？")) {
+                    all_data.sort((a, b) => a.kadai_filename.localeCompare(b.kadai_filename));
+                    const keyOrder = Object.keys(all_data[0]).sort();
+                    const blob = new Blob(
+                        [JSON.stringify(all_data, keyOrder, 2)],
+                        { type: "application/json" }
+                    );
+
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = "progress_board_for_mergely.json";
+                    a.click();
+                    URL.revokeObjectURL(url);
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

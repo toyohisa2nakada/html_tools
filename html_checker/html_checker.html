@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <title>HTMLタグツリー表示</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        @keyframes blink {
+
+            0%,
+            100% {
+                background-color: yellow;
+            }
+
+            50% {
+                background-color: white;
+            }
+        }
+
+        .blinking {
+            animation: blink 0.5s step-start 4;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        #customFileButton {
+            padding: 16px 32px;
+            font-size: 18px;
+            background-color: #007BFF;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            border: none;
+        }
+
+        #fileName {
+            font-size: 16px;
+        }
+
+        @keyframes fadeToGreen {
+            0% {
+                background-color: white;
+            }
+
+            100% {
+                background-color: #d4edda;
+            }
+        }
+
+        .bg-fade-green {
+            animation: fadeToGreen 2s ease-in-out forwards;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        .fadeIn {
+            animation: fadeIn 2s ease forwards;
+        }
+
+        #message {
+            opacity: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>課題のHTMLファイルを選択してください。</h1>
+    <button id="customFileButton">ファイルを選択</button>
+    <input type="file" id="fileInput" accept=".html">
+    <div id="fileName">ファイル未選択</div>
+
+    <h1>結果</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>課題名</th>
+                <th>合否</th>
+            </tr>
+        </thead>
+        <tbody id="kadai_table_body">
+        </tbody>
+    </table>
+    <h1 id="message">作成したすべてのファイルをClassroomから提出してください。</h1>
+
+    <script>
+        [Array, "a2e"].reduce((a, e) => { a.prototype[e] = function () { return this.reduce((e, f) => { f(e); return e; }); }; Object.defineProperty(a.prototype, e, { enumerable: false }); });
+
+        // 正解のhash値
+        const answer_hashes = [
+            { name: "リンクと画像", hash: "42f74d684245d24a803422a7c3cd2ca7a2f25fb95a948c6b469a6cc46c81e24f" },
+            { name: "表", hash: "06aa3925c822658cd88e345e59100d4703bcdb2d01f28c8f8bb66d7921879ba7" },
+            { name: "箇条書きと数値付きリスト", hash: "9d50e1cea60fdfa151f6b2a719680da17d985791e3592fe2da23030c302dee84" },
+        ];
+
+        // 課題分の結果テーブルの要素を作成する。
+        const init_kadai = () => {
+            const tbody_elem = document.getElementById("kadai_table_body");
+            answer_hashes.forEach((kadai, kadai_i) => {
+                tbody_elem.appendChild([
+                    document.createElement("tr"),
+                    e => e.appendChild([
+                        document.createElement("td"),
+                        e => e.textContent = kadai.name,
+                    ].a2e()),
+                    e => e.appendChild([
+                        document.createElement("td"),
+                        e => e.textContent = "",
+                        e => e.id = `kadai${kadai_i}`,
+                    ].a2e()),
+                ].a2e());
+            });
+        };
+        init_kadai();
+
+
+        // ハッシュ値の作成
+        async function getSHA256Hash(text) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(text);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            return hashHex;
+        }
+
+        // 課題のチェック
+        const checkKadai = async (tags) => {
+            const hashValue = await getSHA256Hash(tags);
+            console.log(hashValue);
+            let i = 0;
+            for (; i < answer_hashes.length; i += 1) {
+                if (answer_hashes[i].hash === hashValue) {
+                    const el = document.getElementById(`kadai${i}`);
+                    console.log(el.style.animation);
+                    el.textContent = "○";
+                    el.classList.remove("blinking");
+                    el.style.animation = "none";
+                    el.offsetHeight;
+                    el.style.animation = "";
+                    el.classList.add("blinking");
+                    break;
+                }
+            }
+            if (i === answer_hashes.length) {
+                alert("一致する課題はありません。")
+            } else {
+                if (answer_hashes.every((kadai, kadai_i) =>
+                    document.getElementById(`kadai${kadai_i}`).textContent === "○"
+                )) {
+                    setTimeout(() => {
+                        document.body.classList.add('bg-fade-green');
+                        document.getElementById("message").classList.add("fadeIn");
+                    }, 3000);
+                }
+            }
+        };
+
+        // ファイルからタグ一覧の取得
+        const exportTags = (htmlText) => {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(htmlText, 'text/html');
+            let outputText = "";
+
+            function tagWithAttributes(node) {
+                const tagName = node.tagName.toLowerCase();
+                const attrs = Array.from(node.attributes)
+                    .map(attr => {
+                        let value = attr.value;
+                        if (attr.name === "style") {
+                            value = value.replace(/\s*:\s*/g, ":").replace(/\s*;\s*/g, ";").trim().replace(/;$/, "");
+                            console.log(value)
+                        }
+                        return `${attr.name}="${value}"`
+                    })
+                    .join(' ');
+                return attrs ? `<${tagName} ${attrs}>` : `<${tagName}>`;
+            }
+            function printTagTree(node) {
+                if (node.nodeType === Node.ELEMENT_NODE) {
+                    outputText += tagWithAttributes(node);
+                    for (const child of node.children) {
+                        printTagTree(child);
+                    }
+                }
+            }
+            printTagTree(doc.documentElement);
+            return outputText;
+        };
+
+        const fileInput = document.getElementById('fileInput');
+        document.getElementById("customFileButton").addEventListener("click", () => {
+            fileInput.click();
+        })
+        fileInput.addEventListener('change', () => {
+            const file = fileInput.files[0];
+            if (!file) return;
+            document.getElementById("fileName").textContent = file.name;
+
+            const reader = new FileReader();
+            reader.onload = async () => {
+                const htmlText = reader.result;
+                const tags = exportTags(htmlText);
+                console.log(tags);
+                checkKadai(tags);
+            };
+
+            reader.readAsText(file);
+            fileInput.value = '';
+        });
+    </script>
+</body>
+
+</html>

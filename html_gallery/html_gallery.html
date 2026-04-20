@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML gallery</title>
+    <style>
+        html,
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #controller_panel {
+            display: flex;
+            justify-content: flex-end;
+            padding: 0 10px;
+        }
+
+        #viewer_container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+            align-items: flex-start;
+            gap: 10px;
+            flex-direction: row;
+        }
+
+        .viewer_item {
+            border: 1px solid black;
+            transition: all 2s ease;
+        }
+
+        #editor_output {
+            display: block;
+            /* width: 95%; */
+            /* height: 400px; */
+            /* height: 80vh; */
+            border: 1px solid black;
+        }
+
+        #editor {
+            border: 1px solid #ccc;
+        }
+
+        .for_debug {
+            display: none;
+        }
+
+        #editor_panel {
+            margin: 0;
+            flex: 1;
+            display: flex;
+        }
+
+        .editor_panel {
+            flex: 1;
+            padding: 2px;
+            box-sizing: border-box;
+            overflow: auto;
+        }
+
+        .left {
+            background-color: #f0f0f0;
+        }
+
+        .right {
+            background-color: #ffffff;
+        }
+
+        #editor_output {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+        }
+
+        #add_editor_htmlstrings {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s, transform 0.1s;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="controller_panel">
+        <input type="text" placeholder="sample.html" id="download_filename">
+        <button id="download">download</button>
+        <button id="add_editor_htmlstrings">スクリーンに送信</button>
+        <div class="for_debug">
+            <button id="add_fixed_htmlstrings">固定HTML文字を追加</button>
+            <input type="file" id="fileInput" style="display: block;" accept=".html">
+        </div>
+    </div>
+    <div id="editor_panel">
+        <div class="editor_panel left">
+            <div id="editor"></div>
+        </div>
+        <div class="editor_panel right">
+            <iframe id="editor_output"></iframe>
+        </div>
+    </div>
+    <div id="viewer_panel">
+        <div id="viewer_container"></div>
+    </div>
+
+    <script type="module">
+        const params = {
+            localStorage_key: "html_gallery_client",
+        };
+
+        // URLparameter
+console.log("search",location.search)
+        const html_params = [...new URLSearchParams(location.search).entries()].
+            reduce((obj, e) => ({ ...obj, [e[0]]: e[1] }), {});
+        console.log("html parameters", html_params);
+        const is_viewer_type = () => {
+            return html_params.type === "viewer";
+        };
+        const is_simple_type = () => {
+            return html_params.type === "simple";
+        };
+
+        // html要素の調整
+        if (is_viewer_type()) {
+            ["editor_panel", "controller_panel"].forEach(e => {
+                document.getElementById(e).style.display = "none";
+            });
+        } else if (is_simple_type()) {
+            ["controller_panel"].forEach(e => {
+                document.getElementById(e).style.display = "none";
+            });
+        }
+
+        // editor update timer
+        const timer = (function (cb, msec) {
+            let timer_id = undefined;
+            return {
+                set: function () {
+                    clearTimeout(timer_id);
+                    timer_id = setTimeout(cb, msec);
+                },
+            }
+        })(() => {
+            document.getElementById("editor_output").srcdoc = editor_view.state.doc.toString();
+            localStorage.setItem(params.localStorage_key, JSON.stringify({
+                code: editor_view.state.doc.toString(),
+            }))
+        }, 1000);
+
+        // codemirror
+        import { CodeMirror } from "./libs/editor.bundle.js";
+        const editor_view = CodeMirror(update => {
+            timer.set();
+            // console.log(update);
+        });
+
+        // codemirrorのhtmlをアップ
+        document.getElementById("add_editor_htmlstrings").addEventListener("click", e => {
+            if (confirm("HTMLの表示をスクリーンに送信します。よろしいですか？")) {
+                insert_iframe(editor_view.state.doc.toString());
+            }
+        });
+
+        // websocket
+        import { CommClient } from "./libs/CommClient.mjs";
+        if (is_viewer_type()) {
+            CommClient.init("viewer", {
+                text: async msg => {
+                    // console.log("text", msg);
+                    insert_iframe(msg.data);
+                },
+                server_cmd: async () => {
+                    CommClient.send({ cmd: "set_type", type: "camera" });
+                },
+                set_type: async msg => {
+                    // console.log("set_type", msg);
+                },
+            });
+        } else {
+            CommClient.init(`html_gallery_client_${Date.now()}`, {
+                server_cmd: msg => {
+                    CommClient.send({ cmd: "set_type", type: "controller" });
+                },
+            })
+        }
+
+        // 画面設定
+        const button = document.getElementById('add_fixed_htmlstrings');
+        const container = document.getElementById('viewer_container');
+        let number = 0;
+
+        // iframeの追加
+        const insert_iframe = (html_strings) => {
+            if (html_params.type === undefined) {
+                CommClient.send({ to_id: "cameras", cmd: "text", data: html_strings });
+                return;
+            }
+
+            const iframe = document.createElement('iframe');
+            iframe.classList.add("viewer_item");
+
+            // iframeに初期サイズを設定
+            const scale = 1.0;
+            const wh = [580, 360];
+
+            iframe.sandbox = "allow-scripts allow-forms allow-popups";
+            iframe.style.setProperty('width', '0px', 'important');
+            iframe.style.setProperty('height', '0px', 'important');
+            iframe.style.setProperty('transform', `scale(${scale})`, 'important');
+            iframe.style.setProperty('transform-origin', '0 0', 'important');
+            iframe.style.setProperty('overflow', 'hidden', 'important');
+            iframe.style.setProperty('margin-right', '0px', 'important');
+            iframe.style.setProperty('margin-bottom', '0px', 'important');
+            iframe.style.setProperty('border', '2px solid green', 'important');
+
+            iframe.srcdoc = html_strings;
+
+            iframe.style.width = `${0}px`;
+            iframe.style.height = `${0}px`;
+            setTimeout(() => {
+                iframe.style.width = `${wh[0]}px`;
+                iframe.style.height = `${wh[1]}px`;
+                iframe.style.marginRight = `${wh[0] * (1 - scale) * -1}px`;
+                iframe.style.marginBottom = `${wh[1] * (1 - scale) * -1}px`;
+            }, 1000);
+            iframe.style.transform = `scale(${scale})`;
+            iframe.style.transformOrigin = '0 0';
+            iframe.style.overflow = 'hidden';
+            iframe.style.marginRight = `${0}px`;
+            iframe.style.marginBottom = `${0}px`;
+
+            // iframeをコンテナに追加
+            container.insertBefore(iframe, container.firstChild);
+
+            // 追加されたiframeのサイズを調整
+            // adjustIframes();
+        }
+
+        // ファイルからiframeの追加
+        document.getElementById("fileInput").addEventListener("change", e => {
+            const file = e.target.files[0];
+            // console.log(file)
+            if (file === undefined || file.type !== "text/html") {
+                console.log("error");
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = e => {
+                insert_iframe(e.target.result);
+            };
+            reader.readAsText(file);
+        })
+
+        // debug用の固定htmlをiframeに追加
+        button.addEventListener('click', () => {
+            number += 1;
+
+            insert_iframe(`
+                <html>
+                    <body>
+                        <h1>${number}</h1>
+                        <p>このiframeは動的に追加されました！</p>
+                    </body>
+                </html>
+            `);
+        });
+
+        // download
+        document.getElementById("download").addEventListener("click", e => {
+            const blob = new Blob([editor_view.state.doc.toString()], { type: "text/html" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            const filename_elem = document.getElementById("download_filename");
+            link.download = filename_elem.value === "" ? filename_elem.placeholder : filename_elem.value;
+            link.click();
+            URL.revokeObjectURL(link.href);
+        })
+
+        // iframeのサイズを調整する関数(未使用)
+        function adjustIframes() {
+            const iframes = container.getElementsByTagName('iframe');
+            const totalIframes = iframes.length;
+
+            // iframeが多くなったら小さくする
+            const newWidth = Math.max(300 / Math.sqrt(totalIframes), 300);
+            const newHeight = Math.max(200 / Math.sqrt(totalIframes), 200);
+
+            for (let iframe of iframes) {
+                iframe.width = newWidth;
+                iframe.height = newHeight;
+            }
+        }
+
+        // localStorageからのロード
+        const loaded = JSON.parse(localStorage.getItem(params.localStorage_key) ?? "{}");
+        editor_view.dispatch({
+            changes: {
+                from: 0,
+                to: editor_view.state.doc.length,
+                insert: loaded.code ?? "",
+            }
+        });
+    </script>
+
+</body>
+
+</html>

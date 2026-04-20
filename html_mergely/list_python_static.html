@@ -1,0 +1,3431 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+    <title>Pythonファイルリスト</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            line-height: 1.5;
+            padding: 10px;
+            padding-top: 35px;
+            font-size: 0.9em;
+            background-color: gray;
+        }
+
+        #fixed-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: black;
+            color: white;
+            padding: 3px 10px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            font-size: 0.8em;
+            /* ヘッダーのフォントサイズをさらに縮小 */
+            text-align: center;
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 30px;
+        }
+
+        #fixed-header .current-folder-title {
+            margin: 0;
+        }
+
+        .left-button {
+            position: absolute;
+            left: 0;
+            padding: 5px 10px;
+            background-color: #eee;
+            border: 1px solid #ccc;
+            cursor: pointer;
+            text-decoration: none;
+            color: black;
+        }
+
+        #table-of-contents {
+            background-color: #f8f9fa;
+            padding: 6px;
+            margin-bottom: 10px;
+            border-radius: 3px;
+            border: 1px solid #e9ecef;
+            max-height: 150px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        #table-of-contents h2 {
+            font-size: 1.0em;
+            margin-top: 0;
+            margin-bottom: 5px;
+        }
+
+        #table-of-contents ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        #table-of-contents li a {
+            text-decoration: none;
+            color: #0056b3;
+            padding: 2px 5px;
+            display: block;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            font-size: 0.8em;
+        }
+
+        #table-of-contents li a:hover {
+            background-color: #e2e6ea;
+            color: #0056b3;
+        }
+
+        #table-of-contents li a.active {
+            background-color: #007bff;
+            color: white;
+            font-weight: bold;
+            border-radius: 2px;
+        }
+
+        .folder-section {
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .folder-title {
+            font-size: 1.2em;
+            margin-top: 0;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 3px;
+            background-color: black;
+            color: white;
+        }
+
+        .file-set {
+            margin-bottom: 10px;
+        }
+
+        .file-path {
+            font-family: monospace;
+            background-color: #f4f4f4;
+            padding: 1px 4px;
+            border-radius: 3px;
+            font-size: 0.85em;
+        }
+
+        .file-label {
+            font-weight: bold;
+            margin-bottom: 3px;
+            display: block;
+            font-size: 0.8em;
+        }
+
+        .content-wrapper {
+            display: flex;
+            gap: 10px;
+        }
+
+        .code-container,
+        .question-container,
+        .answer-container {
+            flex: 1;
+            border: 1px solid #ccc;
+            padding: 6px;
+            margin-top: 6px;
+            background-color: #fafafa;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            overflow: auto;
+            max-height: 250px;
+            font-size: 0.8em;
+        }
+
+        .answer-container-panel {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="fixed-header">
+        <a id="back-button" class="left-button">戻る</a>
+        <h3 class="current-folder-title">現在表示中: 01 6/18の週 1コマ目</h3>
+    </div>
+
+    <div id="table-of-contents">
+        <h2>目次</h2>
+        <ul id="toc-list">
+            <li><a href="http://localhost:8000/list_python_dynamic.html#folder-python_01_print" class="active">01 6/18の週
+                    1コマ目</a></li>
+            <li><a href="http://localhost:8000/list_python_dynamic.html#folder-python_02_input">02 6/18の週 2コマ目</a></li>
+            <li><a href="http://localhost:8000/list_python_dynamic.html#folder-python_03_assign">03 6/25の週 1コマ目</a></li>
+            <li><a href="http://localhost:8000/list_python_dynamic.html#folder-python_04_for">04 6/25の週 2コマ目</a></li>
+            <li><a href="http://localhost:8000/list_python_dynamic.html#folder-python_05_assign_sum">05 7/2の週 1コマ目</a>
+            </li>
+            <li><a href="http://localhost:8000/list_python_dynamic.html#folder-python_06_if">06 7/2の週 2コマ目</a></li>
+            <li><a href="http://localhost:8000/list_python_dynamic.html#folder-python_07_if_and_or">07 7/9の週 1コマ目</a>
+            </li>
+            <li><a href="http://localhost:8000/list_python_dynamic.html#folder-python_08_for">08 7/9の週 2コマ目</a></li>
+            <li><a href="http://localhost:8000/list_python_dynamic.html#folder-python_09_string_if">09 7/16の週 1コマ目</a>
+            </li>
+            <li><a href="http://localhost:8000/list_python_dynamic.html#folder-python_10_for_if">10 7/16の週 2コマ目</a></li>
+        </ul>
+    </div>
+
+    <div id="file-list">
+        <div class="folder-section" id="folder-python_01_print">
+            <h2 class="folder-title">01 6/18の週 1コマ目</h2>
+            <div class="file-set">
+                <h3><span class="file-path">py01_print</span><button class="try-button">この問題を解く</button></h3>
+                <div class="content-wrapper">
+                    <div>
+                        <span class="file-label">py01_print.py</span>
+                        <pre class="code-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+print("モンスターボール")
+
+# 画面下の実行ボタンを押してみてください。次のように表示されます。
+# モンスターボール
+</pre>
+                    </div>
+                    <div>
+                        <span class="file-label">py01_print_quest.txt</span>
+                        <pre class="question-container">改造要求
+
+■作業1: スーパーボールと出力されるように、プログラムを改造してください。
+
+■確認: 課題チェックボタンを押して、確認をしてください。
+</pre>
+                    </div>
+                    <div class="answer-container-panel">
+                        <span class="file-label">py01_print_ans.py</span>
+                        <pre class="answer-container">print("スーパーボール")
+</pre>
+                    </div>
+                </div>
+            </div>
+            <div class="file-set">
+                <h3><span class="file-path">py02_print</span><button class="try-button">この問題を解く</button></h3>
+                <div class="content-wrapper">
+                    <div>
+                        <span class="file-label">py02_print.py</span>
+                        <pre class="code-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+# printは , で区切って複数の文字や数値を出力できます。
+# この例は、モンスターボールの種類と捕獲倍率を出力します。
+print("モンスターボール",1.0)
+print("スーパーボール",1.5)
+print("ハイパーボール",2.0)
+
+# 画面下の実行ボタンを押してみてください。次のように表示されます。
+# モンスターボール 1.0
+# スーパーボール 1.5
+# ハイパーボール 2.0
+</pre>
+                    </div>
+                    <div>
+                        <span class="file-label">py02_print_quest.txt</span>
+                        <pre class="question-container">改造要求
+
+■作業1: 捕獲倍率の高い順に出力されるようにプログラムを改造してください。
+
+■確認: 課題チェックボタンを押して、確認をしてください。
+</pre>
+                    </div>
+                    <div class="answer-container-panel">
+                        <span class="file-label">py02_print_ans.py</span>
+                        <pre class="answer-container">print("ハイパーボール",2.0)
+print("スーパーボール",1.5)
+print("モンスターボール",1.0)
+</pre>
+                    </div>
+                </div>
+            </div>
+            <div class="file-set">
+                <h3><span class="file-path">py03_num_assign</span><button class="try-button">この問題を解く</button></h3>
+                <div class="content-wrapper">
+                    <div>
+                        <span class="file-label">py03_num_assign.py</span>
+                        <pre class="code-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+# a = 1 は、変数aに1をセットしています。
+a = 1
+print("1回目",a)
+
+# aを2で上書きします。
+a = 2
+print("2回目",a)
+
+# aの値を1つ増やします。
+a = a + 1
+print("3回目",a)
+
+# a+1の計算結果を出力します。
+# aの値は変わっていません。
+print("4回目",a+1)
+
+# aの値が変わっていないことを確認します。
+print("5回目",a)
+
+# 画面下の実行ボタンを押してみてください。次のように表示されます。
+# 1回目 1
+# 2回目 2
+# 3回目 3
+# 4回目 4
+# 5回目 3
+</pre>
+                    </div>
+                    <div>
+                        <span class="file-label">py03_num_assign_quest.txt</span>
+                        <pre class="question-container">改造要求
+
+■作業1: このプログラムをprint("5回目",a)の後に書いてください。
+print("6回目",a)
+
+■作業2: 以下のように出力するプログラムを完成させてください。
+「6回目 10」が追加されています。
+1回目 1
+2回目 2
+3回目 3
+4回目 4
+5回目 3
+6回目 10
+
+■確認: 課題チェックボタンを押して、確認をしてください。
+</pre>
+                    </div>
+                    <div class="answer-container-panel">
+                        <span class="file-label">py03_num_assign_ans.py</span>
+                        <pre class="answer-container">a = 1
+print("1回目",a)
+
+a = 2
+print("2回目",a)
+
+a = a + 1
+print("3回目",a)
+
+print("4回目",a+1)
+
+print("5回目",a)
+
+a = 10
+print("6回目",a)
+</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="folder-section" id="folder-python_02_input">
+            <h2 class="folder-title">02 6/18の週 2コマ目</h2>
+            <div class="file-set">
+                <h3><span class="file-path">py04_str_assign</span><button class="try-button">この問題を解く</button></h3>
+                <div class="content-wrapper">
+                    <div>
+                        <span class="file-label">py04_str_assign.py</span>
+                        <pre class="code-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+# 変数aに文字appleをセットしています。
+a = "apple"
+print("1回目",a)
+
+# 変数aの文字にpenを追加します。
+a = a + "pen"
+print("2回目",a)
+
+# 画面下の実行ボタンを押してみてください。次のように表示されます。
+# 1回目 apple
+# 2回目 applepen
+</pre>
+                    </div>
+                    <div>
+                        <span class="file-label">py04_str_assign_quest.txt</span>
+                        <pre class="question-container">改造要求
+
+■作業1: このプログラムをprint("2回目",a)の後に書いてください。
+b = "grape"
+print("3回目",b)
+print("4回目",b)
+
+
+■作業2: 以下のように出力するプログラムを完成させてください。
+1回目 apple
+2回目 applepen
+3回目 grape
+4回目 grapefruit
+
+■確認: 課題チェックボタンを押して、確認をしてください。
+</pre>
+                    </div>
+                    <div class="answer-container-panel">
+                        <span class="file-label">py04_str_assign_ans.py</span>
+                        <pre class="answer-container">a = "apple"
+print("1回目",a)
+
+a = a + "pen"
+print("2回目",a)
+
+b = "grape"
+print("3回目",b)
+
+b = b + "fruit"
+print("4回目",b)
+</pre>
+                    </div>
+                </div>
+            </div>
+            <div class="file-set">
+                <h3><span class="file-path">py05_input_str</span><button class="try-button">この問題を解く</button></h3>
+                <div class="content-wrapper">
+                    <div>
+                        <span class="file-label">py05_input_str.py</span>
+                        <pre class="code-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+# 入力欄の文字をaにセットします。
+# 入力欄は画面下に表示されます。
+a = input("入力a")
+b = input("入力b")
+
+# aの文字の後にbの文字をつなげます。
+print(a+b)
+
+# aの文字に ! をつなげます。
+print(a+"!")
+
+# 画面下の実行ボタンを押してみてください。
+# 入力a「あ」入力b「い」とすると、次のように表示されます。
+# あい
+# あ!
+</pre>
+                    </div>
+                    <div>
+                        <span class="file-label">py05_input_str_quest.txt</span>
+                        <pre class="question-container">改造要求
+
+■作業1: 入力a-入力bと出力するプログラムを作成してください。
+例えば入力a「あ」入力b「い」の場合、「あ-い」とだけ出力されます。
+(「あ-い」以外は出力されません)
+
+■確認: 課題チェックボタンを押して、確認をしてください。
+</pre>
+                    </div>
+                    <div class="answer-container-panel">
+                        <span class="file-label">py05_input_str_ans.py</span>
+                        <pre class="answer-container">a = input("入力a")
+b = input("入力b")
+print(a+"-"+b)
+</pre>
+                    </div>
+                </div>
+            </div>
+            <div class="file-set">
+                <h3><span class="file-path">py06_input_num</span><button class="try-button">この問題を解く</button></h3>
+                <div class="content-wrapper">
+                    <div>
+                        <span class="file-label">py06_input_num.py</span>
+                        <pre class="code-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+# 入力欄の数字をaにセットします。
+# intは文字を数値に変換します。
+a = int(input("入力a"))
+b = int(input("入力b"))
+
+print(a+b)
+
+# 画面下の実行ボタンを押してみてください。
+# 入力a「1」入力b「2」とすると、次のように表示されます。
+# 3
+</pre>
+                    </div>
+                    <div>
+                        <span class="file-label">py06_input_num_quest.txt</span>
+                        <pre class="question-container">改造要求
+
+■作業1: 入力a+入力b、入力b-入力a、入力a*入力bを出力するプログラムを作成してください。
+例えば入力a「1」入力b「2」の場合は以下のように出力されます。
+3
+1
+2
+
+■確認: 課題チェックボタンを押して、確認をしてください。
+</pre>
+                    </div>
+                    <div class="answer-container-panel">
+                        <span class="file-label">py06_input_num_ans.py</span>
+                        <pre class="answer-container">a = int(input("入力a"))
+b = int(input("入力b"))
+print(a+b)
+print(b-a)
+print(a*b)
+</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="folder-section" id="folder-python_03_assign">
+            <h2 class="folder-title">03 6/25の週 1コマ目</h2>
+            <div class="file-set">
+                <h3><span class="file-path">py07_print</span><button class="try-button">この問題を解く</button></h3>
+                <div class="content-wrapper">
+                    <div>
+                        <span class="file-label">py07_print.py</span>
+                        <pre class="code-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+print("おはようございます")
+print("こんにちは")
+print("こんばんは")
+
+# 画面下の実行ボタンを押してみてください。次のように表示されます。
+# おはようございます
+# こんにちは
+# こんばんは
+</pre>
+                    </div>
+                    <div>
+                        <span class="file-label">py07_print_quest.txt</span>
+                        <pre class="question-container">改造要求
+
+■要求1: 次のように出力されるようにプログラムを改造してください。
+こんばんは
+こんにちは
+おはようございます
+
+■確認: 課題チェックボタンを押して、確認をしてください。
+</pre>
+                    </div>
+                    <div class="answer-container-panel">
+                        <span class="file-label">py07_print_ans.py</span>
+                        <pre class="answer-container">print("こんばんは")
+print("こんにちは")
+print("おはようございます")
+</pre>
+                    </div>
+                </div>
+            </div>
+            <div class="file-set">
+                <h3><span class="file-path">py08_print2</span><button class="try-button">この問題を解く</button></h3>
+                <div class="content-wrapper">
+                    <div>
+                        <span class="file-label">py08_print2.py</span>
+                        <pre class="code-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+# 変数aに、おはようございます が保存されます。
+a = "おはようございます"
+print(a)
+
+# 変数aは、こんにちは に上書きされます。
+a = "こんにちは"
+print(a)
+
+# 名前の入力欄に入力した文字が変数bに保存されます。
+b = input("名前")
+
+# 変数aは、こんばんは に上書きされます。
+a = "こんばんは"
+# 変数bの文字に、さん と、 aに保存されている文字が
+# 追加されて出力されます。
+print(b+"さん、"+a)
+
+# 画面下の実行ボタンを押してみてください。次のように表示されます。
+# おはようございます
+# こんにちは
+# (名前に入力した文字)さん、こんばんは
+</pre>
+                    </div>
+                    <div>
+                        <span class="file-label">py08_print2_quest.txt</span>
+                        <pre class="question-container">改造要求
+
+■要求1: 例えば入力欄に「太郎」と入力すると、
+次のように出力されるようにプログラムを改造してください。
+太郎さん、おはようございます
+太郎さん、こんにちは
+太郎さん、こんばんは
+
+■確認: 課題チェックボタンを押して、確認をしてください。
+</pre>
+                    </div>
+                    <div class="answer-container-panel">
+                        <span class="file-label">py08_print2_ans.py</span>
+                        <pre class="answer-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+b = input("名前")
+
+a = "おはようございます"
+print(b+"さん、"+a)
+
+a = "こんにちは"
+print(b+"さん、"+a)
+
+a = "こんばんは"
+print(b+"さん、"+a)
+
+</pre>
+                    </div>
+                </div>
+            </div>
+            <div class="file-set">
+                <h3><span class="file-path">py09_assign</span><button class="try-button">この問題を解く</button></h3>
+                <div class="content-wrapper">
+                    <div>
+                        <span class="file-label">py09_assign.py</span>
+                        <pre class="code-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+# 変数aには数値を保存します。
+a = 1
+# 数値が保存されているaに1が足されて
+# 2が出力されます。
+print(a+1)
+
+# 変数aには、文字の1が保存されます。
+a = "1"
+# 文字の足し算は、文字を連結します。
+print(a+"1")
+
+
+
+
+# 画面下の実行ボタンを押してみてください。次のように表示されます。
+# 2
+# 11
+</pre>
+                    </div>
+                    <div>
+                        <span class="file-label">py09_assign_quest.txt</span>
+                        <pre class="question-container">改造要求
+
+■要求1: 15,16行目に以下の2行のプログラムを
+追加してください。
+(最初のプログラムと自分で書いたプログラムの行を
+ 合わせるために、#の行は、#だけを書いておくと
+ やり易いと思います)
+b = "3"
+print(b)
+
+■要求2: 16行目に追加した print(b) を改造し、
+以下のように出力するようにしてください。
+3-1
+
+■確認: 元からあるprintが2つ、要求3で1つのprintを追加したので、
+合計で3個の出力があります。その3つが適切かどうか確認してから、
+課題チェックボタンを押してください。
+</pre>
+                    </div>
+                    <div class="answer-container-panel">
+                        <span class="file-label">py09_assign_ans.py</span>
+                        <pre class="answer-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+# 変数aには数値を保存します。
+a = 1
+# 数値が保存されているaに1が足されて
+# 2が出力されます。
+print(a+1)
+
+# 変数aには、文字の1が保存されます。
+a = "1"
+# 文字の足し算は、文字を連結します。
+print(a+"1")
+
+b = "3"
+print(b+"-1")
+
+# 画面下の実行ボタンを押してみてください。次のように表示されます。
+# 2
+# 11
+</pre>
+                    </div>
+                </div>
+            </div>
+            <div class="file-set">
+                <h3><span class="file-path">py10_assign2</span><button class="try-button">この問題を解く</button></h3>
+                <div class="content-wrapper">
+                    <div>
+                        <span class="file-label">py10_assign2.py</span>
+                        <pre class="code-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+# inputは文字を返します。
+# それをintで数値に変換します。
+x = int(input("入力1"))
+# xに2を足して表示します。
+print(x + 2)
+
+# 入力2の数値でxを上書きします。
+x = int(input("入力2"))
+# 数値のxには、数値を足し合わせます。
+print(x + 2)
+
+
+</pre>
+                    </div>
+                    <div>
+                        <span class="file-label">py10_assign2_quest.txt</span>
+                        <pre class="question-container">改造要求（発展問題）
+
+■要求1: プログラムの最後に以下の1行を追加してください。
+x = input("入力3")
+
+■要求2: 入力3には文字を入力してください。
+例えば、文字が a の場合、
+a+2
+と出力されるように、print文を1つ追加してください。
+
+ヒント:
++ を使って文字と文字をつなげることができます。
+数字 2 は文字として使う必要があります。
+
+■確認:
+例1: 入力1 5、入力2 8、入力3 b の場合
+7
+10
+b+2
+
+例2: 入力1 2、入力2 1、入力3 0 の場合
+4
+5
+0+2
+
+出力が正しいことを確認してから、「課題チェックボタン」を押してください。
+</pre>
+                    </div>
+                    <div class="answer-container-panel">
+                        <span class="file-label">py10_assign2_ans.py</span>
+                        <pre class="answer-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+# inputは文字を返します。
+# それをintで数値に変換します。
+x = int(input("入力1"))
+# xに2を足して表示します。
+print(x + 2)
+
+# 入力2の数値でxを上書きします。
+x = int(input("入力2"))
+# 数値のxには、数値を足し合わせます。
+print(x + 2)
+
+x = input("入力3")
+print(x+"+2")
+</pre>
+                    </div>
+                </div>
+            </div>
+            <div class="file-set">
+                <h3><span class="file-path">py11_assign3</span><button class="try-button">この問題を解く</button></h3>
+                <div class="content-wrapper">
+                    <div>
+                        <span class="file-label">py11_assign3.py</span>
+                        <pre class="code-container"># 名前を入力（これは文字です）
+name = input("名前を入力してください")
+
+# 年齢を入力（これは数値です）
+age = int(input("年齢を入力してください"))
+</pre>
+                    </div>
+                    <div>
+                        <span class="file-label">py11_assign3_quest.txt</span>
+                        <pre class="question-container">発展課題：名前と年齢を使ったメッセージの表示
+
+■要求1: 名前と来年の年齢を出力する。
+例1: 名前が 情報 、年齢が 20 の場合、
+情報さんの来年の年齢は
+21
+歳です
+
+例2: 名前が 太郎、年齢が 5 の場合
+太郎さんの来年の年齢は
+6
+歳です
+
+
+■確認
+正しく動作することを確認したら、課題チェックボタンを押してください。
+</pre>
+                    </div>
+                    <div class="answer-container-panel">
+                        <span class="file-label">py11_assign3_ans.py</span>
+                        <pre class="answer-container"># 名前を入力（これは文字です）
+name = input("名前を入力してください")
+
+# 年齢を入力（これは数値です）
+age = int(input("年齢を入力してください"))
+
+print(name+"さんの来年の年齢は")
+print(age+1)
+print("歳です")
+</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="folder-section" id="folder-python_04_for">
+            <h2 class="folder-title">04 6/25の週 2コマ目</h2>
+            <div class="file-set">
+                <h3><span class="file-path">py12_for1</span><button class="try-button">この問題を解く</button></h3>
+                <div class="content-wrapper">
+                    <div>
+                        <span class="file-label">py12_for1.py</span>
+                        <pre class="code-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+for i in [0,1,2,3]:
+  print(i)
+
+# 画面下の実行ボタンを押してみてください。次のように表示されます。
+# 0
+# 1
+# 2
+# 3
+</pre>
+                    </div>
+                    <div>
+                        <span class="file-label">py12_for1_quest.txt</span>
+                        <pre class="question-container">改造要求
+
+■要求1: 次の出力のようになるようプログラムを改造してください。
+3
+4
+53
+1
+-5
+
+■確認: 課題チェックボタンを押して、確認をしてください。
+</pre>
+                    </div>
+                    <div class="answer-container-panel">
+                        <span class="file-label">py12_for1_ans.py</span>
+                        <pre class="answer-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+for i in [3,4,53,1,-5]:
+  print(i)
+
+</pre>
+                    </div>
+                </div>
+            </div>
+            <div class="file-set">
+                <h3><span class="file-path">py13_for2</span><button class="try-button">この問題を解く</button></h3>
+                <div class="content-wrapper">
+                    <div>
+                        <span class="file-label">py13_for2.py</span>
+                        <pre class="code-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+for i in [0,1,2,3,4,5,6,7,8,9]:
+  print(i+5)
+
+# 画面下の実行ボタンを押してみてください。次のように表示されます。
+# 5
+# 6
+# 7
+# 8
+# 9
+# 10
+# 11
+# 12
+# 13
+# 14
+</pre>
+                    </div>
+                    <div>
+                        <span class="file-label">py13_for2_quest.txt</span>
+                        <pre class="question-container">改造要求
+
+■要求1: 次の出力のようになるようプログラムを改造してください。
+0
+3
+6
+9
+12
+15
+18
+21
+24
+27
+
+■確認: 課題チェックボタンを押して、確認をしてください。
+</pre>
+                    </div>
+                    <div class="answer-container-panel">
+                        <span class="file-label">py13_for2_ans.py</span>
+                        <pre class="answer-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+for i in [0,1,2,3,4,5,6,7,8,9]:
+  print(i*3)
+</pre>
+                    </div>
+                </div>
+            </div>
+            <div class="file-set">
+                <h3><span class="file-path">py14_for3</span><button class="try-button">この問題を解く</button></h3>
+                <div class="content-wrapper">
+                    <div>
+                        <span class="file-label">py14_for3.py</span>
+                        <pre class="code-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+for name in ["ねこ", "いぬ", "さる", "とり"]:
+  print(name + "が好きです")
+
+# 画面下の実行ボタンを押してみてください。次のように表示されます。
+# ねこが好きです
+# いぬが好きです
+# さるが好きです
+# とりが好きです
+</pre>
+                    </div>
+                    <div>
+                        <span class="file-label">py14_for3_quest.txt</span>
+                        <pre class="question-container">改造要求
+
+■要求1: 次の出力のようになるようプログラムを改造してください。
+ニンジンが嫌いです
+ピーマンが嫌いです
+グリンピースが嫌いです
+セロリが嫌いです
+パクチーが嫌いです
+
+
+■確認: 課題チェックボタンを押して、確認をしてください。
+</pre>
+                    </div>
+                    <div class="answer-container-panel">
+                        <span class="file-label">py14_for3_ans.py</span>
+                        <pre class="answer-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+for name in ["ニンジン", "ピーマン", "グリンピース", "セロリ", "パクチー"]:
+  print(name + "が嫌いです")
+</pre>
+                    </div>
+                </div>
+            </div>
+            <div class="file-set">
+                <h3><span class="file-path">py15_for4</span><button class="try-button">この問題を解く</button></h3>
+                <div class="content-wrapper">
+                    <div>
+                        <span class="file-label">py15_for4.py</span>
+                        <pre class="code-container"># この課題は0からスタートです。
+# 改造要求を見てみてください。
+
+# ここから下に、自分でプログラムを追加してください。</pre>
+                    </div>
+                    <div>
+                        <span class="file-label">py15_for4_quest.txt</span>
+                        <pre class="question-container">改造要求
+
+■要求1: 入力欄を2つ作成し、そこに入力された文字を
+一つ前の課題で作成した5つの野菜の前後に連結して
+出力するプログラムを作成してください。
+
+例1: 入力1 あまい、入力2 は美味しい
+あまいニンジンは美味しい
+あまいピーマンは美味しい
+あまいグリンピースは美味しい
+あまいセロリは美味しい
+あまいパクチーは美味しい
+
+例2: 入力1 にがい、入力2 は地獄です
+にがいニンジンは地獄です
+にがいピーマンは地獄です
+にがいグリンピースは地獄です
+にがいセロリは地獄です
+にがいパクチーは地獄です
+
+
+■確認: 課題チェックボタンを押して、確認をしてください。
+</pre>
+                    </div>
+                    <div class="answer-container-panel">
+                        <span class="file-label">py15_for4_ans.py</span>
+                        <pre class="answer-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+a0 = input("入力1")
+a1 = input("入力2")
+
+for name in ["ニンジン", "ピーマン", "グリンピース", "セロリ", "パクチー"]:
+  print(a0 + name + a1)
+</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="folder-section" id="folder-python_05_assign_sum">
+            <h2 class="folder-title">05 7/2の週 1コマ目</h2>
+            <div class="file-set">
+                <h3><span class="file-path">py16_input</span><button class="try-button">この問題を解く</button></h3>
+                <div class="content-wrapper">
+                    <div>
+                        <span class="file-label">py16_input.py</span>
+                        <pre class="code-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+# 変数aに 1 をセットします。
+a = 1
+
+# 現在の a の値を出力します。
+print(a)
+
+# 変数aを2に上書きして、出力します。
+a = 2
+print(a)
+
+# もう一度、現在の a の値を出力します。
+# 変数aは何も変えていないので、同じ数字が出力されます。
+print(a)
+
+# 実行ボタンを押すと以下のように出力されます。
+# 1
+# 2
+# 2</pre>
+                    </div>
+                    <div>
+                        <span class="file-label">py16_input_quest.txt</span>
+                        <pre class="question-container">改造要求
+
+■要求1: 以下のように出力するように、プログラムを改造してください。
+1
+2
+3
+
+■確認: 課題チェックボタンを押して、確認をしてください。
+</pre>
+                    </div>
+                    <div class="answer-container-panel">
+                        <span class="file-label">py16_input_ans.py</span>
+                        <pre class="answer-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+# 変数aに 1 をセットします。
+a = 1
+
+# 現在の a の値を出力します。
+print(a)
+
+# 変数aを2に上書きして、出力します。
+a = 2
+print(a)
+
+# もう一度、現在の a の値を出力します。
+a = 3
+print(a)
+</pre>
+                    </div>
+                </div>
+            </div>
+            <div class="file-set">
+                <h3><span class="file-path">py17_input2</span><button class="try-button">この問題を解く</button></h3>
+                <div class="content-wrapper">
+                    <div>
+                        <span class="file-label">py17_input2.py</span>
+                        <pre class="code-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+# 変数aに 1 をセットします。
+a = 1
+
+# 現在の a の値を出力します。
+print(a)
+
+# 変数aを2に上書きして、出力します。
+a = 2
+print(a)
+
+# 変数aを3に上書きして、出力します。
+a = 3
+print(a)
+
+# 実行ボタンを押すと以下のように出力されます。
+# 1
+# 2
+# 3</pre>
+                    </div>
+                    <div>
+                        <span class="file-label">py17_input2_quest.txt</span>
+                        <pre class="question-container">改造要求
+
+■要求1: 以下のプログラムを適切な箇所に入れて、次のように出力するプログラムにしてください。
+a = int(input("入力"))
+
+例1: 入力が 5 の場合、
+1
+5
+3
+
+例2: 入力が 8 の場合、
+1
+8
+3
+
+例3: 入力が -1 の場合、
+1
+-1
+3
+
+
+■確認: 課題チェックボタンを押して、確認をしてください。
+</pre>
+                    </div>
+                    <div class="answer-container-panel">
+                        <span class="file-label">py17_input2_ans.py</span>
+                        <pre class="answer-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+# 変数aに 1 をセットします。
+a = 1
+
+# 現在の a の値を出力します。
+print(a)
+
+# 変数aを2に上書きして、出力します。
+a = int(input("入力"))
+print(a)
+
+# aは入力から値をコピーして代入します。
+a = 3
+print(a)
+</pre>
+                    </div>
+                </div>
+            </div>
+            <div class="file-set">
+                <h3><span class="file-path">py18_sum_ave</span><button class="try-button">この問題を解く</button></h3>
+                <div class="content-wrapper">
+                    <div>
+                        <span class="file-label">py18_sum_ave.py</span>
+                        <pre class="code-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+a = int(input("1つ目"))
+b = int(input("2つ目"))
+
+print(a+b)
+
+# 1つ目に 1 、2つ目に 2 を入力して実行すると次のように出力されます。
+# 3</pre>
+                    </div>
+                    <div>
+                        <span class="file-label">py18_sum_ave_quest.txt</span>
+                        <pre class="question-container">改造要求
+
+■要求1: 3つめの入力欄を作成し、変数cに数値を入れてください。
+
+■要求2: 3つの変数(a,b,c)の合計と平均を出力するプログラムを作成してください。
+&lt;-- は出力の説明なので、出力されなくて良いです。
+例1: 入力された数値が 1 2 2 の場合
+5                  &lt;-- 合計
+1.6666666666666667 &lt;-- 平均
+
+例2: 入力された数値が 5 -2 3 の場合
+6   &lt;-- 合計
+2.0 &lt;-- 平均
+
+■確認: 課題チェックボタンを押して、確認をしてください。
+</pre>
+                    </div>
+                    <div class="answer-container-panel">
+                        <span class="file-label">py18_sum_ave_ans.py</span>
+                        <pre class="answer-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+a = int(input("1つ目"))
+b = int(input("2つ目"))
+c = int(input("3つ目"))
+
+print(a+b+c)
+print((a+b+c)/3)
+
+</pre>
+                    </div>
+                </div>
+            </div>
+            <div class="file-set">
+                <h3><span class="file-path">py19_increment</span><button class="try-button">この問題を解く</button></h3>
+                <div class="content-wrapper">
+                    <div>
+                        <span class="file-label">py19_increment.py</span>
+                        <pre class="code-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+a = 1
+
+# += は、aの数値(1)に右の数値(2)を足します。
+a += 2
+print(a)
+
+# -= は、aの数値(3)に右の数値(2)を引きます。
+a -= 2
+print(a)
+
+# 入力1の数値を足します。
+a += int(input("入力1"))
+print(a)
+
+# 入力2の数値を引きます。
+a -= int(input("入力2"))
+print(a)
+
+# 入力1に 5 、入力2に 6 をセットして実行すると次のように出力されます。
+# &lt;- は説明です。実際には&lt;-とその右側は出力されません。
+# 3
+# 1  &lt;- ここまでは入力の値に無関係です。
+# 6  &lt;- 入力1(この例では 5)が足されます。
+# 0  &lt;- 入力2(この例では 6)が引かれます。</pre>
+                    </div>
+                    <div>
+                        <span class="file-label">py19_increment_quest.txt</span>
+                        <pre class="question-container">改造要求
+
+■要求1: プログラムの最後に以下の2行を追加してください。
+...は、あとで数値に書き換えます。
+a += ...
+print(a)
+
+■要求2: ...の箇所を数値に変えて、
+以下のように出力するプログラムを完成させてください。
+
+例1: 入力1が 1 、入力2が 3 の場合
+3
+1
+2
+-1
+7
+
+例2: 入力1が 5 、入力2が -3 の場合
+3
+1
+6
+9
+17
+
+ヒント: まず22行目に a += 0 と書いてみましょう。
+a に何を足せば要求を充たすか、考えてみてください。
+
+
+■確認: 課題チェックボタンを押して、確認をしてください。
+</pre>
+                    </div>
+                    <div class="answer-container-panel">
+                        <span class="file-label">py19_increment_ans.py</span>
+                        <pre class="answer-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+a = 1
+
+# += は、aの数値(5)に右の数値(2)を足します。
+a += 2
+print(a)
+
+# -= は、aの数値(7)に右の数値(3)を引きます。
+a -= 2
+print(a)
+
+# 右の数値が入力欄の数値になります。
+a += int(input("入力1"))
+print(a)
+
+# 入力2の数値を足します。
+a -= int(input("入力2"))
+print(a)
+
+a += 8
+print(a)
+</pre>
+                    </div>
+                </div>
+            </div>
+            <div class="file-set">
+                <h3><span class="file-path">py20_multiple</span><button class="try-button">この問題を解く</button></h3>
+                <div class="content-wrapper">
+                    <div>
+                        <span class="file-label">py20_multiple.py</span>
+                        <pre class="code-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+a = 10
+
+# *= は、xに右の数値(2)をかけます。
+a *= 2
+print(a)
+
+# /= は、xに右の数値(4)で割ります。
+a /= 4
+print(a)
+
+# 入力された数値でかけ算します。
+a *= int(input("入力1"))
+print(a)
+
+# 入力された数値で割ります（0は入力しないでください）。
+a /= int(input("入力2"))
+print(a)
+
+# 入力1に 1、入力2に 2 をセットすると次のように出力されます。
+# 20
+# 5.0
+# 5.0
+# 2.5
+</pre>
+                    </div>
+                    <div>
+                        <span class="file-label">py20_multiple_quest.txt</span>
+                        <pre class="question-container">改造要求
+
+■要求1: プログラムの最後に以下の2行を追加してください。
+...は、あとで数値に書き換えます。
+a *= ...
+print(a)
+
+■要求2: ...の箇所を数値に変えて、
+以下のように出力するプログラムを完成させてください。
+
+例1: 入力1が 1 、入力2が 2 の場合
+20
+5.0
+5.0
+2.5
+12.5
+
+例2: 入力1が 3 、入力2が 5 の場合
+20
+5.0
+15.0
+3.0
+15.0
+
+ヒント: まず22行目に a *= 1 と書いてみましょう。
+a に何をかければ要求を充たすか、考えてみてください。
+
+
+■確認: 課題チェックボタンを押して、確認をしてください。
+</pre>
+                    </div>
+                    <div class="answer-container-panel">
+                        <span class="file-label">py20_multiple_ans.py</span>
+                        <pre class="answer-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+a = 10
+
+# *= は、xに右の数値(2)をかけます。
+a *= 2
+print(a)
+
+# /= は、xに右の数値(4)で割ります。
+a /= 4
+print(a)
+
+# 入力された数値でかけ算します。
+a *= int(input("入力1"))
+print(a)
+
+# 入力された数値で割ります（0は入力しないでください）。
+a /= int(input("入力2"))
+print(a)
+
+a *= 5
+print(a)
+</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="folder-section" id="folder-python_06_if">
+            <h2 class="folder-title">06 7/2の週 2コマ目</h2>
+            <div class="file-set">
+                <h3><span class="file-path">py21_if</span><button class="try-button">この問題を解く</button></h3>
+                <div class="content-wrapper">
+                    <div>
+                        <span class="file-label">py21_if.py</span>
+                        <pre class="code-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+a = int(input("a"))
+
+if a == 1:
+  print("イチ")
+
+# 入力aが 1 のときだけ、「イチ」と出力されます。
+# それ以外は、何も出力されません。
+</pre>
+                    </div>
+                    <div>
+                        <span class="file-label">py21_if_quest.txt</span>
+                        <pre class="question-container">改造要求
+
+■要求1: 入力した数値が 0 のときだけ ゼロ と出力するように改造してください。
+入力が 0 以外は何も出力されません。
+
+■確認: 課題チェックボタンを押して、確認をしてください。
+</pre>
+                    </div>
+                    <div class="answer-container-panel">
+                        <span class="file-label">py21_if_ans.py</span>
+                        <pre class="answer-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+a = int(input("a"))
+
+if a == 0:
+  print("ゼロ")
+</pre>
+                    </div>
+                </div>
+            </div>
+            <div class="file-set">
+                <h3><span class="file-path">py22_if_else</span><button class="try-button">この問題を解く</button></h3>
+                <div class="content-wrapper">
+                    <div>
+                        <span class="file-label">py22_if_else.py</span>
+                        <pre class="code-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+a = int(input("a"))
+
+if a == 0:
+  print("0")
+else:
+  print("0以外")
+
+# 入力が 0 のとき 0 、
+# それ以外の数値だと、 0以外 と
+# 出力されます。
+</pre>
+                    </div>
+                    <div>
+                        <span class="file-label">py22_if_else_quest.txt</span>
+                        <pre class="question-container">改造要求
+
+■要求1: 入力した数値が 0以上 のとき 0以上 、それ以外のとき マイナス と出力するように改造してください。
+
+ヒント: 以上は a &gt;= ... という記号を使います。
+
+■確認: 課題チェックボタンを押して、確認をしてください。
+</pre>
+                    </div>
+                    <div class="answer-container-panel">
+                        <span class="file-label">py22_if_else_ans.py</span>
+                        <pre class="answer-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+a = int(input("a"))
+
+if a &gt;= 0:
+  print("0以上")
+else:
+  print("マイナス")
+
+# 入力aに 0 をセットすると zero
+# 入力aに 0以外 をセットすると non-zero
+# と出力されます。
+</pre>
+                    </div>
+                </div>
+            </div>
+            <div class="file-set">
+                <h3><span class="file-path">py23_if_if</span><button class="try-button">この問題を解く</button></h3>
+                <div class="content-wrapper">
+                    <div>
+                        <span class="file-label">py23_if_if.py</span>
+                        <pre class="code-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+a = int(input("a"))
+
+if a &gt;= 18:
+  print("成人")
+if a &lt; 20:
+  print("酒たばこ禁止")
+
+# 入力と出力は次のようになります。
+#
+# 17
+# 酒たばこ禁止
+#
+# 18
+# 成人
+# 酒たばこ禁止
+#
+# 20
+# 成人
+</pre>
+                    </div>
+                    <div>
+                        <span class="file-label">py23_if_if_quest.txt</span>
+                        <pre class="question-container">改造要求
+
+■要求1: if文を1つ追加して、入力が 16以上 で 原付免許の取得可能 と出力するようにしてください。
+出力される順番は、次の例のようにしてください。
+
+例1: 入力が 15
+酒たばこ禁止
+
+例2: 入力が 16
+酒たばこ禁止
+原付免許の取得可能
+
+例3: 入力が 18
+成人
+酒たばこ禁止
+原付免許の取得可能
+
+例3: 入力が 20
+成人
+原付免許の取得可能
+
+■確認: 課題チェックボタンを押して、確認をしてください。
+</pre>
+                    </div>
+                    <div class="answer-container-panel">
+                        <span class="file-label">py23_if_if_ans.py</span>
+                        <pre class="answer-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+a = int(input("a"))
+
+if a &gt;= 18:
+  print("成人")
+if a &lt; 20:
+  print("酒たばこ禁止")
+if a &gt;= 16:
+  print("原付免許の取得可能")
+</pre>
+                    </div>
+                </div>
+            </div>
+            <div class="file-set">
+                <h3><span class="file-path">py24_if_elif_else</span><button class="try-button">この問題を解く</button></h3>
+                <div class="content-wrapper">
+                    <div>
+                        <span class="file-label">py24_if_elif_else.py</span>
+                        <pre class="code-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+a = int(input("a"))
+
+if a == 0:
+  print("ゼロ")
+elif a == 1:
+  print("イチ")
+else:
+  print("それ以外")
+
+# 入力aが 0 のとき ゼロ
+# 入力aが 1 のとき イチ
+# それ以外のとき それ以外
+# と出力されます。
+</pre>
+                    </div>
+                    <div>
+                        <span class="file-label">py24_if_elif_else_quest.txt</span>
+                        <pre class="question-container">改造要求
+
+■要求1: 入力aが 0 のとき ゼロ、 3 のとき サン、それ以外のとき それ以外 と出力するように改造してください。
+例1: 入力が 0
+ゼロ
+
+例2: 入力が 3
+サン
+
+例3: 入力が 1
+それ以外
+
+例4: 入力が 2
+それ以外
+
+■確認: 課題チェックボタンを押して、確認をしてください。
+</pre>
+                    </div>
+                    <div class="answer-container-panel">
+                        <span class="file-label">py24_if_elif_else_ans.py</span>
+                        <pre class="answer-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+a = int(input("a"))
+
+if a == 0:
+  print("ゼロ")
+elif a == 3:
+  print("サン")
+else:
+  print("それ以外")
+
+</pre>
+                    </div>
+                </div>
+            </div>
+            <div class="file-set">
+                <h3><span class="file-path">py25_if_elif_elif</span><button class="try-button">この問題を解く</button></h3>
+                <div class="content-wrapper">
+                    <div>
+                        <span class="file-label">py25_if_elif_elif.py</span>
+                        <pre class="code-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+a = int(input("a"))
+b = int(input("b"))
+
+if a == 0:
+  print("ゼロ")
+elif a == 1:
+  print("イチ")
+elif b == 3:
+  print("サン")
+
+# 先にaの値が調べられて、
+# 0,1以外のときに、bの値が調べられます。
+#
+# 入力、出力は次のようになります。
+# 入力a 0, 入力b 3
+# ゼロ
+#
+# 入力a 1, 入力b 3
+# イチ
+#
+# 入力a 2, 入力b 3
+# サン
+#
+# 入力a 2, 入力b 4
+# (何も出力されない)
+</pre>
+                    </div>
+                    <div>
+                        <span class="file-label">py25_if_elif_elif_quest.txt</span>
+                        <pre class="question-container">改造要求
+
+■要求1: サン が出力されるのは、入力bが 3 だけでなく、入力aが 0 でも 1 でもないときだけでした。
+ここでの改造は、入力aに関わらず、入力bが 3 のときに、 サン と出力されるようにしてください。
+
+例1: 入力a 0 、入力b 3 (これまではゼロだけ出力されていた例)
+ゼロ
+サン
+
+例2: 入力a 1 、入力b 3 (これまではゼロだけ出力されていた例)
+イチ
+サン
+
+例3: 入力a 2 、入力b 3
+サン
+
+例4: 入力a 2 、入力b 4
+(何も出力されない)
+
+
+■確認: 課題チェックボタンを押して、確認をしてください。
+</pre>
+                    </div>
+                    <div class="answer-container-panel">
+                        <span class="file-label">py25_if_elif_elif_ans.py</span>
+                        <pre class="answer-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+a = int(input("a"))
+b = int(input("b"))
+
+if a == 0:
+  print("ゼロ")
+elif a == 1:
+  print("イチ")
+if b == 3:
+  print("サン")
+
+</pre>
+                    </div>
+                </div>
+            </div>
+            <div class="file-set">
+                <h3><span class="file-path">py26_nest_if</span><button class="try-button">この問題を解く</button></h3>
+                <div class="content-wrapper">
+                    <div>
+                        <span class="file-label">py26_nest_if.py</span>
+                        <pre class="code-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+a = int(input("a"))
+b = int(input("b"))
+
+
+if a == 0:
+  if b == 1:
+    print("ok")
+
+# aが0 かつ bが1のときだけ、okと出力される。
+</pre>
+                    </div>
+                    <div>
+                        <span class="file-label">py26_nest_if_quest.txt</span>
+                        <pre class="question-container">改造要求
+
+■要求1:入力cを作成し、aが0、bが1、そしてcが2のときだけ ok と出力するプログラムを作成してください。
+
+例1: 入力a 0, 入力b 1, 入力c 2
+ok
+
+例2: 上記以外の入力は、すべて何も出力されない。
+
+
+■確認: 課題チェックボタンを押して、確認をしてください。
+</pre>
+                    </div>
+                    <div class="answer-container-panel">
+                        <span class="file-label">py26_nest_if_ans.py</span>
+                        <pre class="answer-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+a = int(input("a"))
+b = int(input("b"))
+c = int(input("c"))
+
+
+if a == 0:
+  if b == 1:
+    if c == 2:
+      print("ok")
+</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="folder-section" id="folder-python_07_if_and_or">
+            <h2 class="folder-title">07 7/9の週 1コマ目</h2>
+            <div class="file-set">
+                <h3><span class="file-path">py27_assign</span><button class="try-button">この問題を解く</button></h3>
+                <div class="content-wrapper">
+                    <div>
+                        <span class="file-label">py27_assign.py</span>
+                        <pre class="code-container"># 最初の100ポイントからスタートする
+points = 100
+# 30減る
+points -= 30
+# 50増える
+points += 50
+# 2倍になる
+points *= 2
+# 2分の1になる
+points /= 2
+
+# 結局、120.0ポイントになる
+print(points)
+</pre>
+                    </div>
+                    <div>
+                        <span class="file-label">py27_assign_quest.txt</span>
+                        <pre class="question-container">改造要求
+
+■要求1:
+以下の4点を変更してください。
+
+1. points の初期値を 150 に変更する
+2. points -= 30 を points -= 20 に変更する
+3. points += 50 を points += 40 に変更する
+4. points -= 10 を最後に追加する
+
+■確認:
+課題チェックボタンを押して、確認をしてください。
+</pre>
+                    </div>
+                    <div class="answer-container-panel">
+                        <span class="file-label">py27_assign_ans.py</span>
+                        <pre class="answer-container">points = 150
+points -= 20
+points += 40
+points *= 2
+points /= 2
+points -= 10
+
+print(points)
+</pre>
+                    </div>
+                </div>
+            </div>
+            <div class="file-set">
+                <h3><span class="file-path">py28_if</span><button class="try-button">この問題を解く</button></h3>
+                <div class="content-wrapper">
+                    <div>
+                        <span class="file-label">py28_if.py</span>
+                        <pre class="code-container">lucky = int(input("ナンバー"))
+if lucky == 2:
+  print("ok")
+
+# 入力が 2 のときだけ、okと出力されます。
+</pre>
+                    </div>
+                    <div>
+                        <span class="file-label">py28_if_quest.txt</span>
+                        <pre class="question-container">改造要求
+
+■要求1:
+次の条件を追加して、プログラムを改造してください。
+
+1. 変数luckyの値が 7 のときだけ ok と出力するようにしてください。
+
+■確認:
+課題チェックボタンを押して、確認をしてください。
+</pre>
+                    </div>
+                    <div class="answer-container-panel">
+                        <span class="file-label">py28_if_ans.py</span>
+                        <pre class="answer-container">lucky = int(input("ナンバー"))
+if lucky == 7:
+  print("ok")
+</pre>
+                    </div>
+                </div>
+            </div>
+            <div class="file-set">
+                <h3><span class="file-path">py29_if_and</span><button class="try-button">この問題を解く</button></h3>
+                <div class="content-wrapper">
+                    <div>
+                        <span class="file-label">py29_if_and.py</span>
+                        <pre class="code-container">n0 = int(input("ナンバー1"))
+n1 = int(input("ナンバー2"))
+
+if n0 == 0 and n1 == 1:
+  print("ok")
+
+# ナンバー1が 0 、ナンバー2が 1 のときだけokと出力されます。
+</pre>
+                    </div>
+                    <div>
+                        <span class="file-label">py29_if_and_quest.txt</span>
+                        <pre class="question-container">改造要求
+
+■要求1:
+次の条件を追加して、プログラムを改造してください。
+
+1. 変数n2を作成し、入力欄から値を受け取るようにしてください。
+2. n0,n1,n2のすべてが 7 のとき "ok" を出力するようにしてください。
+
+■確認:
+課題チェックボタンを押して、確認をしてください。
+</pre>
+                    </div>
+                    <div class="answer-container-panel">
+                        <span class="file-label">py29_if_and_ans.py</span>
+                        <pre class="answer-container">n0 = int(input("ナンバー1"))
+n1 = int(input("ナンバー2"))
+n2 = int(input("ナンバー3"))
+
+if n0 == 7 and n1 == 7 and n2 == 7:
+  print("ok")
+</pre>
+                    </div>
+                </div>
+            </div>
+            <div class="file-set">
+                <h3><span class="file-path">py30_if_or</span><button class="try-button">この問題を解く</button></h3>
+                <div class="content-wrapper">
+                    <div>
+                        <span class="file-label">py30_if_or.py</span>
+                        <pre class="code-container">n0 = int(input("ナンバー1"))
+
+if n0 == 1 or n0 == 3:
+  print("ok")
+
+# ナンバー1が 1 または 3 のときに ok と出力されます。
+</pre>
+                    </div>
+                    <div>
+                        <span class="file-label">py30_if_or_quest.txt</span>
+                        <pre class="question-container">改造要求
+
+■要求1:
+次の条件を追加して、プログラムを改造してください。
+
+1. 変数n0が 2 または 4 または 6 のとき ok と出力するようにしてください。
+
+■確認:
+課題チェックボタンを押して、確認をしてください。
+</pre>
+                    </div>
+                    <div class="answer-container-panel">
+                        <span class="file-label">py30_if_or_ans.py</span>
+                        <pre class="answer-container">n0 = int(input("a"))
+
+if n0 == 2 or n0 == 4 or n0 == 6:
+  print("ok")
+</pre>
+                    </div>
+                </div>
+            </div>
+            <div class="file-set">
+                <h3><span class="file-path">py31_if_and_or_1</span><button class="try-button">この問題を解く</button></h3>
+                <div class="content-wrapper">
+                    <div>
+                        <span class="file-label">py31_if_and_or_1.py</span>
+                        <pre class="code-container">type = input("学生 or 教員")
+mask = input("マスクの有無")
+
+if type == "学生" or (type == "教員" and mask == "マスク"):
+  print("ok")
+
+# 「学生 or 教員」を 学生 と入力すると
+#  ok と出力される。
+# 学生は無条件で ok、という意味です。
+#
+# 「学生 or 教員」を 教員 と入力すると、
+# 「マスクの有無」に マスク と入力されていないと
+# okにはならない。
+# 教員はマスクが必要という意味です。
+</pre>
+                    </div>
+                    <div>
+                        <span class="file-label">py31_if_and_or_1_quest.txt</span>
+                        <pre class="question-container">改造要求
+
+■やること
+もとのプログラムは「教員だけマスクが必要」というルールでした。
+これを「学生も教員もマスクが必要」にルールを変えてください。
+
+■変更前（今のルール）
+学生、マスクなし → OK
+教員、マスクなし → ダメ（何も出力されない）
+教員、マスクあり → OK
+
+■変更後（新しいルール）
+学生、マスクなし → ダメ（何も出力されない）
+学生、マスクあり → OK
+教員、マスクなし → ダメ（何も出力されない）
+教員、マスクあり → OK
+
+また「学生 or 教員」欄に 学生 教員 以外が入力されたときには、
+マスクには関係なく、なにも出力されません。
+
+■ヒント
+丸い括弧 ( ) の付け替えによってルールは変わります。
+
+■確認:
+課題チェックボタンを押して、確認をしてください。
+</pre>
+                    </div>
+                    <div class="answer-container-panel">
+                        <span class="file-label">py31_if_and_or_1_ans.py</span>
+                        <pre class="answer-container">type = input("学生 or 教員")
+mask = input("マスクの有無")
+
+if (type == "学生" or type == "教員") and mask == "マスク":
+  print("ok")
+</pre>
+                    </div>
+                </div>
+            </div>
+            <div class="file-set">
+                <h3><span class="file-path">py32_if_and_or_2</span><button class="try-button">この問題を解く</button></h3>
+                <div class="content-wrapper">
+                    <div>
+                        <span class="file-label">py32_if_and_or_2.py</span>
+                        <pre class="code-container">ticket = input("チケット")
+id_card = input("本人確認")
+
+if ticket == "あり" and id_card == "My Number":
+  print("ok")
+
+# チケットがあって、本人確認を My Numberで出来る場合、
+# okと出力される。
+</pre>
+                    </div>
+                    <div>
+                        <span class="file-label">py32_if_and_or_2_quest.txt</span>
+                        <pre class="question-container">改造要求
+
+■やること
+もとのプログラムは、チケットがあってMy Numberを持っている、というルールでした。
+これをチケットと、My Numberまたは免許証、というルールに変えてください。
+
+■変更前（今のルール）
+あり、My Number → OK
+あり、免許証 → ダメ（何も出力されない）
+なし、My Number → ダメ（何も出力されない）
+
+■変更後（新しいルール）
+あり、My Number → OK
+あり、免許証 → OK
+これ以外は、ダメ（何も出力されない）
+
+■ヒント
+もしもうまく動作しない場合、丸い括弧 ( ) の使用を検討してみてください。
+
+■確認:
+課題チェックボタンを押して、確認をしてください。
+</pre>
+                    </div>
+                    <div class="answer-container-panel">
+                        <span class="file-label">py32_if_and_or_2_ans.py</span>
+                        <pre class="answer-container">ticket = input("チケット")
+id_card = input("本人確認")
+
+if ticket == "あり" and (id_card == "My Number" or id_card == "免許証"):
+  print("ok")
+
+</pre>
+                    </div>
+                </div>
+            </div>
+            <div class="file-set">
+                <h3><span class="file-path">py33_if_not_1</span><button class="try-button">この問題を解く</button></h3>
+                <div class="content-wrapper">
+                    <div>
+                        <span class="file-label">py33_if_not_1.py</span>
+                        <pre class="code-container">age = int(input("年"))
+
+if not age == 18:
+  print("ok")
+
+# 年が18歳以外はOKと出力される
+</pre>
+                    </div>
+                    <div>
+                        <span class="file-label">py33_if_not_1_quest.txt</span>
+                        <pre class="question-container">改造要求
+
+■やること
+次の条件を追加して、プログラムを改造してください。
+
+元々のプログラムは、変数age が 18 ではないときだけ ok と出力されます。
+この改造では、変数age が 18 のときだけ ok と出力されるようにしてください。
+
+■確認:
+課題チェックボタンを押して、確認をしてください。
+</pre>
+                    </div>
+                    <div class="answer-container-panel">
+                        <span class="file-label">py33_if_not_1_ans.py</span>
+                        <pre class="answer-container">age = int(input("年"))
+
+if age == 18:
+  print("ok")
+</pre>
+                    </div>
+                </div>
+            </div>
+            <div class="file-set">
+                <h3><span class="file-path">py34_if_not_2</span><button class="try-button">この問題を解く</button></h3>
+                <div class="content-wrapper">
+                    <div>
+                        <span class="file-label">py34_if_not_2.py</span>
+                        <pre class="code-container">score1 = int(input("国語"))
+score2 = int(input("数学"))
+
+if not (score1 &gt;= 80 and score2 &gt;= 80):
+  print("ng")
+
+# 合格する条件を国語、数学の両方が80以上として、
+# それ以外をngとする。
+</pre>
+                    </div>
+                    <div>
+                        <span class="file-label">py34_if_not_2_quest.txt</span>
+                        <pre class="question-container">改造要求
+
+■やること
+次の条件を追加して、プログラムを改造してください。
+
+元々のプログラムは、国語、数学の両方が80以上でOK(何も出力されない)、
+そうではないとき、ngと出力されます。
+
+この改造では、国語と数学のうち1つでも80以上ならOK(何も出力されない)、
+それ以外は ng というように改造してください。
+
+■ヒント
+出力は ng だけなので、score1が80未満 (score1 &lt; 80)、
+そしてscore2も80未満の場合、print("ng")となります。
+
+■確認:
+課題チェックボタンを押して、確認をしてください。
+</pre>
+                    </div>
+                    <div class="answer-container-panel">
+                        <span class="file-label">py34_if_not_2_ans.py</span>
+                        <pre class="answer-container">score1 = int(input("国語"))
+score2 = int(input("数学"))
+
+if score1 &lt; 80 and score2 &lt; 80:
+  print("ng")
+
+# どちらか一方でも80未満ならng
+</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="folder-section" id="folder-python_08_for">
+            <h2 class="folder-title">08 7/9の週 2コマ目</h2>
+            <div class="file-set">
+                <h3><span class="file-path">py35_for</span><button class="try-button">この問題を解く</button></h3>
+                <div class="content-wrapper">
+                    <div>
+                        <span class="file-label">py35_for.py</span>
+                        <pre class="code-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+for i in [0,1,2,3,4,5,6,7,8,9]:
+  print(i+5)
+
+# 画面下の実行ボタンを押してみてください。次のように表示されます。
+# 5
+# 6
+# 7
+# 8
+# 9
+# 10
+# 11
+# 12
+# 13
+# 14
+</pre>
+                    </div>
+                    <div>
+                        <span class="file-label">py35_for_quest.txt</span>
+                        <pre class="question-container">改造要求
+
+■要求1: 次の出力のようになるようプログラムを改造してください。
+0
+3
+6
+9
+12
+15
+18
+21
+24
+27
+
+■確認: 課題チェックボタンを押して、確認をしてください。
+</pre>
+                    </div>
+                    <div class="answer-container-panel">
+                        <span class="file-label">py35_for_ans.py</span>
+                        <pre class="answer-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+for i in [0,1,2,3,4,5,6,7,8,9]:
+  print(i*3)
+</pre>
+                    </div>
+                </div>
+            </div>
+            <div class="file-set">
+                <h3><span class="file-path">py36_range1</span><button class="try-button">この問題を解く</button></h3>
+                <div class="content-wrapper">
+                    <div>
+                        <span class="file-label">py36_range1.py</span>
+                        <pre class="code-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+for i in range(20):
+  print(i)
+
+# 0から19まで出力されます。
+</pre>
+                    </div>
+                    <div>
+                        <span class="file-label">py36_range1_quest.txt</span>
+                        <pre class="question-container">改造要求
+
+■要求1: 次の出力のようになるようプログラムを改造してください。
+
+0から始めて、6ずつ増やした数を114まで表示します。
+途中は省略して、以下のようになります。
+0  
+6  
+...  
+108  
+114
+
+■確認: 課題チェックボタンを押して、確認をしてください。
+</pre>
+                    </div>
+                    <div class="answer-container-panel">
+                        <span class="file-label">py36_range1_ans.py</span>
+                        <pre class="answer-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+for i in range(20):
+  print(i*6)
+</pre>
+                    </div>
+                </div>
+            </div>
+            <div class="file-set">
+                <h3><span class="file-path">py37_range2</span><button class="try-button">この問題を解く</button></h3>
+                <div class="content-wrapper">
+                    <div>
+                        <span class="file-label">py37_range2.py</span>
+                        <pre class="code-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+n = int(input("n"))
+for i in range(n):
+  print(i)
+
+# 0から入力した数字の1つ前までが出力されます。
+</pre>
+                    </div>
+                    <div>
+                        <span class="file-label">py37_range2_quest.txt</span>
+                        <pre class="question-container">改造要求
+
+■要求1: 0からではなく、出力は1からスタートし、入力した数字までにしてください。
+
+例: 入力が 3 の場合の出力
+1
+2
+3
+
+■確認: 課題チェックボタンを押して、確認をしてください。
+</pre>
+                    </div>
+                    <div class="answer-container-panel">
+                        <span class="file-label">py37_range2_ans.py</span>
+                        <pre class="answer-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+n = int(input("n"))
+for i in range(n):
+  print(i+1)
+
+# 1から入力した数字までが縦に出力されます。
+</pre>
+                    </div>
+                </div>
+            </div>
+            <div class="file-set">
+                <h3><span class="file-path">py38_range3</span><button class="try-button">この問題を解く</button></h3>
+                <div class="content-wrapper">
+                    <div>
+                        <span class="file-label">py38_range3.py</span>
+                        <pre class="code-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+n = int(input("n"))
+for i in range(n):
+  print(i)
+
+# 0から入力した数字の1つ前までが出力されます。
+</pre>
+                    </div>
+                    <div>
+                        <span class="file-label">py38_range3_quest.txt</span>
+                        <pre class="question-container">改造要求
+
+■要求1: 出力する数字を逆順にしてください。
+
+例: 入力が 3 の場合の出力
+2
+1
+0
+
+■確認: 課題チェックボタンを押して、確認をしてください。
+</pre>
+                    </div>
+                    <div class="answer-container-panel">
+                        <span class="file-label">py38_range3_ans.py</span>
+                        <pre class="answer-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+n = int(input("n"))
+for i in range(n):
+  print(n-i-1)
+
+# 0から入力した数字の1つ前までが出力されます。
+</pre>
+                    </div>
+                </div>
+            </div>
+            <div class="file-set">
+                <h3><span class="file-path">py39_list1</span><button class="try-button">この問題を解く</button></h3>
+                <div class="content-wrapper">
+                    <div>
+                        <span class="file-label">py39_list1.py</span>
+                        <pre class="code-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+words = ["apple", "banana", "cherry"]
+for word in words:
+  # upper関数によって大文字に変換します。
+  word2 = word.upper()
+  # 変換後のword2を出力します。
+  print(word2)
+
+# wordsの文字がすべて 大文字 に変わります。
+
+</pre>
+                    </div>
+                    <div>
+                        <span class="file-label">py39_list1_quest.txt</span>
+                        <pre class="question-container">改造要求
+
+■要求1: 最初の文字だけが大文字になるようにしてください。
+出力例:
+Apple
+Banana
+Cherry
+
+ヒント: capitalize関数を使用すると、最初の文字だけが大文字に変換されます。
+
+■確認: 課題チェックボタンを押して、確認をしてください。
+</pre>
+                    </div>
+                    <div class="answer-container-panel">
+                        <span class="file-label">py39_list1_ans.py</span>
+                        <pre class="answer-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+words = ["apple", "banana", "cherry"]
+for word in words:
+  word2 = word.capitalize()
+  print(word2)
+
+</pre>
+                    </div>
+                </div>
+            </div>
+            <div class="file-set">
+                <h3><span class="file-path">py40_string1</span><button class="try-button">この問題を解く</button></h3>
+                <div class="content-wrapper">
+                    <div>
+                        <span class="file-label">py40_string1.py</span>
+                        <pre class="code-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+word = input("word")
+for ch in word:
+  print(ch)
+
+# 入力した文字が縦に出力されます。
+
+</pre>
+                    </div>
+                    <div>
+                        <span class="file-label">py40_string1_quest.txt</span>
+                        <pre class="question-container">改造要求
+
+■要求1: すべての文字の後ろに ! を付けてください。
+
+入力が apple の場合の出力
+a!
+p!
+p!
+l!
+e!
+
+■確認: 課題チェックボタンを押して、確認をしてください。
+</pre>
+                    </div>
+                    <div class="answer-container-panel">
+                        <span class="file-label">py40_string1_ans.py</span>
+                        <pre class="answer-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+word = input("word")
+for ch in word:
+  print(ch+"!")
+
+</pre>
+                    </div>
+                </div>
+            </div>
+            <div class="file-set">
+                <h3><span class="file-path">py41_string2</span><button class="try-button">この問題を解く</button></h3>
+                <div class="content-wrapper">
+                    <div>
+                        <span class="file-label">py41_string2.py</span>
+                        <pre class="code-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+word = input("word")
+for ch in word:
+  if ch == "p":
+    print(ch.upper())
+  else:
+    print(ch)
+
+# 入力した文字の p だけ大文字の P に変わって出力されます。
+</pre>
+                    </div>
+                    <div>
+                        <span class="file-label">py41_string2_quest.txt</span>
+                        <pre class="question-container">改造要求
+
+■要求1: pだけ出力されないようにしてください。
+
+入力が apple の場合の出力
+a
+
+
+l
+e
+
+ヒント: print("")を使用すると、何も出力せずに改行します。
+
+■確認: 課題チェックボタンを押して、確認をしてください。
+</pre>
+                    </div>
+                    <div class="answer-container-panel">
+                        <span class="file-label">py41_string2_ans.py</span>
+                        <pre class="answer-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+word = input("word")
+for ch in word:
+  if ch == "p":
+    print("")
+  else:
+    print(ch)
+</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="folder-section" id="folder-python_09_string_if">
+            <h2 class="folder-title">09 7/16の週 1コマ目</h2>
+            <div class="file-set">
+                <h3><span class="file-path">py42_string_num</span><button class="try-button">この問題を解く</button></h3>
+                <div class="content-wrapper">
+                    <div>
+                        <span class="file-label">py42_string_num.py</span>
+                        <pre class="code-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+a = 1 + 1
+b = "1" + "1"
+c = int(input("数字1")) + int(input("数字2"))
+
+print(a)
+print(b)
+print(c)
+
+# 2 11 のあとに、数字1と数字2の合計値が出力されます
+</pre>
+                    </div>
+                    <div>
+                        <span class="file-label">py42_string_num_quest.txt</span>
+                        <pre class="question-container">改造要求
+
+■要求:
+変数 d を作り、文字を2つ入力して、それをつなげた文字を d に入れてください。
+d = input("1") + input("2")
+ここで、input("1") や input("2") は、それぞれ文字を入力する欄を作る命令です。その2つの文字を + で結合します。"1"や"2"は画面に表示されるラベルです。プログラムの動きには関係はありません。
+
+最後に、変数 d を出力してください
+print(d)
+
+例: 入力が 1 2 a b のときの出力
+2
+11
+3
+ab
+
+■確認: 課題チェックボタンを押して、確認をしてください。
+</pre>
+                    </div>
+                    <div class="answer-container-panel">
+                        <span class="file-label">py42_string_num_ans.py</span>
+                        <pre class="answer-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+a = 1 + 1
+b = "1" + "1"
+c = int(input("int")) + int(input("int"))
+d = input("1") + input("2")
+
+print(a)
+print(b)
+print(c)
+print(d)
+
+# 
+</pre>
+                    </div>
+                </div>
+            </div>
+            <div class="file-set">
+                <h3><span class="file-path">py43_string</span><button class="try-button">この問題を解く</button></h3>
+                <div class="content-wrapper">
+                    <div>
+                        <span class="file-label">py43_string.py</span>
+                        <pre class="code-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+a = input("主語")
+
+print(a)
+
+# 入力欄の文字がそのまま出力されます
+</pre>
+                    </div>
+                    <div>
+                        <span class="file-label">py43_string_quest.txt</span>
+                        <pre class="question-container">改造要求
+
+■要求:
+入力欄を1つ増やし、入力欄を左から「入力1」「入力2」としたとき、
+「入力1」は、「入力2」です
+と出力するようにしてください。
+
+例1: 入力が テスト 簡単 の場合
+テストは、簡単です
+
+例2: 入力が 大学 春休みが長い の場合
+大学は、春休みが長いです
+
+ヒント: 文字を結合するのは、 + です。例えば、a+"は、"+b とすると、変数aに入っている文字に "は、" がつながって、さらに変数bの文字がつながります。
+
+■確認: 課題チェックボタンを押して、確認をしてください。
+</pre>
+                    </div>
+                    <div class="answer-container-panel">
+                        <span class="file-label">py43_string_ans.py</span>
+                        <pre class="answer-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+a = input("主語")
+b = input("補語")
+
+print(a+"は、"+b+"です")
+
+# 
+</pre>
+                    </div>
+                </div>
+            </div>
+            <div class="file-set">
+                <h3><span class="file-path">py44_if_string1</span><button class="try-button">この問題を解く</button></h3>
+                <div class="content-wrapper">
+                    <div>
+                        <span class="file-label">py44_if_string1.py</span>
+                        <pre class="code-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+a = input("商品")
+
+if a == "もっちゅりん":
+  print("ミスタードーナツ")
+elif a == "金のバターチキンカレー":
+  print("セブンイレブン")
+
+# もっちゅりん と入力すると、 ミスタードーナツ
+# 金のバターチキンカレー と入力すると、 セブンイレブンと出力されます。
+</pre>
+                    </div>
+                    <div>
+                        <span class="file-label">py44_if_string1_quest.txt</span>
+                        <pre class="question-container">改造要求
+
+■要求:
+もっちゅりん -&gt; ミスタードーナツ、
+金のバターチキンカレー -&gt; セブンイレブン、
+という出力はそのままに、次の入出力の関係を追加してください。
+
+ファミチキ -&gt; ファミリーマート
+からあげクン -&gt; ローソン
+
+例えばファミチキと入力すると、ファミリーマートと出力されます。
+
+■確認: 課題チェックボタンを押して、確認をしてください。
+</pre>
+                    </div>
+                    <div class="answer-container-panel">
+                        <span class="file-label">py44_if_string1_ans.py</span>
+                        <pre class="answer-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+a = input("string1")
+
+if a == "もっちゅりん":
+  print("ミスタードーナツ")
+elif a == "金のバターチキンカレー":
+  print("セブンイレブン")
+elif a == "ファミチキ":
+  print("ファミリーマート")
+elif a == "からあげクン":
+  print("ローソン")
+
+# 
+</pre>
+                    </div>
+                </div>
+            </div>
+            <div class="file-set">
+                <h3><span class="file-path">py45_if_string2</span><button class="try-button">この問題を解く</button></h3>
+                <div class="content-wrapper">
+                    <div>
+                        <span class="file-label">py45_if_string2.py</span>
+                        <pre class="code-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+a = input("部品1")
+b = input("部品2")
+
+if a == "エンジン":
+  print("車")
+if b == "翼":
+  print("グライダー")
+
+# 入力1(部品1)がエンジンなら車
+# 入力2(部品2)が翼ならグライダー
+# そして エンジン 翼 とした場合、両方出力されます。
+</pre>
+                    </div>
+                    <div>
+                        <span class="file-label">py45_if_string2_quest.txt</span>
+                        <pre class="question-container">改造要求
+
+■要求:
+入力1に エンジン 入力2に 翼 が入力されたとき、
+飛行機 とだけ出力するようにしてください。
+
+例1: 入力1 エンジン 入力2 翼
+飛行機
+(車やグライダーは出力されません)
+
+例2: 入力1 エンジン 入力2 (空欄)
+車
+
+例3: 入力1 (空欄) 入力2 翼
+グライダー
+
+ヒント:
+エンジンと翼の両方が入力されているかを調べるには、and を使います。まず最初に、if で「両方ある場合」をチェックします。
+if a == "エンジン" and b == "翼":
+そのあとに elif を使って、「エンジンだけ」や「翼だけ」の場合を1つずつ調べていきます。つまり、もともとの if は elif に書きかえる必要があります。
+
+■確認: 課題チェックボタンを押して、確認をしてください。
+</pre>
+                    </div>
+                    <div class="answer-container-panel">
+                        <span class="file-label">py45_if_string2_ans.py</span>
+                        <pre class="answer-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+a = input("string1")
+b = input("string2")
+
+if a == "エンジン" and b == "翼":
+  print("飛行機")
+elif a == "エンジン":
+  print("車")
+elif b == "翼":
+  print("グライダー")
+
+# 
+</pre>
+                    </div>
+                </div>
+            </div>
+            <div class="file-set">
+                <h3><span class="file-path">py46_if_string3</span><button class="try-button">この問題を解く</button></h3>
+                <div class="content-wrapper">
+                    <div>
+                        <span class="file-label">py46_if_string3.py</span>
+                        <pre class="code-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+a = input("特徴")
+
+if a == "ロボット":
+  print("ドラえもん")
+else:
+  print("のび太")
+
+# 入力が ロボット だと ドラえもん と出力されます
+
+</pre>
+                    </div>
+                    <div>
+                        <span class="file-label">py46_if_string3_quest.txt</span>
+                        <pre class="question-container">改造要求
+
+■要求:
+ドラえもんとのび太を区別するプログラムです。
+入力欄に、ロボット 未来 ひみつ道具 のどれかが入力されたとき ドラえもん、それ以外のとき のび太 と出力するようにしてください。
+
+例1: 入力 ロボット
+ドラえもん
+
+例2: 入力 未来
+ドラえもん
+
+例3: 入力 ひみつ道具
+ドラえもん
+
+例4: 入力 テスト0点
+のび太
+
+ヒント: orを使ってみてください。また のび太 は、elseのところで出力します。
+
+■確認: 課題チェックボタンを押して、確認をしてください。
+</pre>
+                    </div>
+                    <div class="answer-container-panel">
+                        <span class="file-label">py46_if_string3_ans.py</span>
+                        <pre class="answer-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+a = input("string1")
+
+if a == "ロボット" or a == "未来" or a == "ひみつ道具":
+  print("ドラえもん")
+else:
+  print("のび太")
+
+# 
+</pre>
+                    </div>
+                </div>
+            </div>
+            <div class="file-set">
+                <h3><span class="file-path">py47_assign1</span><button class="try-button">この問題を解く</button></h3>
+                <div class="content-wrapper">
+                    <div>
+                        <span class="file-label">py47_assign1.py</span>
+                        <pre class="code-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+# 食品(軽減税率 8%)
+low = int(input("low"))
+
+# その他(10%)
+high = 500
+
+total = low * 1.08 + high * 1.1
+print(total)
+
+# 消費税8%の税抜き金額は入力欄から入力し、それに消費税10%の商品(500円)を加えた総支払額を出力します。
+
+</pre>
+                    </div>
+                    <div>
+                        <span class="file-label">py47_assign1_quest.txt</span>
+                        <pre class="question-container">改造要求
+
+■要求: その他(10%)の税抜き金額も、入力欄から入力するようにしてください。
+
+例 入力1(8%) 215、入力2(10%) 413のときの出力
+686.5
+
+ヒント:
+現状のプログラムでは、10％の税率がかかる商品（変数 high）は、500円で固定されています。この「500」の部分を、次のように書き換えてください。
+int(input("h"))
+ここで "h" は、入力欄に表示されるラベルです。わかりやすくなるように、自分で好きな表示（例：「金額」など）に変えても構いません。
+
+■確認: 課題チェックボタンを押して、確認をしてください。
+</pre>
+                    </div>
+                    <div class="answer-container-panel">
+                        <span class="file-label">py47_assign1_ans.py</span>
+                        <pre class="answer-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+# 食品(軽減税率 8%)
+low = int(input("low"))
+
+# その他(10%)
+high = int(input("high"))
+
+total = low * 1.08 + high * 1.1
+print(total)
+
+# 
+</pre>
+                    </div>
+                </div>
+            </div>
+            <div class="file-set">
+                <h3><span class="file-path">py48_assign2</span><button class="try-button">この問題を解く</button></h3>
+                <div class="content-wrapper">
+                    <div>
+                        <span class="file-label">py48_assign2.py</span>
+                        <pre class="code-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+# 課題 15%
+# 課題は、タイピング大会を除いて、すべての提出課題の平均点を入力します。
+# "提出済み"と表示されているところは、100点として良いです。
+kadai = int(input("課題"))
+
+# 中間試験 35%
+
+# 期末試験 50%
+
+total = kadai * 0.15
+print(total)
+
+# 小数点第1位を四捨五入して、60点以上で単位取得です。
+</pre>
+                    </div>
+                    <div>
+                        <span class="file-label">py48_assign2_quest.txt</span>
+                        <pre class="question-container">改造要求
+
+■要求:
+中間試験の変数 mid_test を作成し、入力値からセットしてください。
+mid_test = int(input("中間試験"))
+
+期末試験の変数 final_test を作成し、入力値からセットしてください。
+final_test = int(input("期末試験"))
+
+変数totalの計算は、本講義のシラバスから抜粋し以下のようにしてください。
+total = kadai * 0.15 + mid_test * 0.35 + final_test * 0.5
+
+例1: 課題 90、中間試験 50、期末試験 30
+46.0
+
+例2: 課題 40、中間試験 35、期末試験 65
+50.75
+
+■確認: 課題チェックボタンを押して、確認をしてください。
+</pre>
+                    </div>
+                    <div class="answer-container-panel">
+                        <span class="file-label">py48_assign2_ans.py</span>
+                        <pre class="answer-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+# 課題 15%
+# 課題は、タイピング大会を除いて、すべての提出課題の平均点を入力します。
+# "提出済み"と表示されているところは、100点として良いです。
+kadai = int(input("課題"))
+
+# 中間試験 35%
+mid_test = int(input("中間試験"))
+
+# 期末試験 50%
+final_test = int(input("期末試験"))
+
+total = kadai * 0.15 + mid_test * 0.35 + final_test * 0.5
+print(total)
+
+# 小数点第1位を四捨五入して、60点以上で単位取得です。
+</pre>
+                    </div>
+                </div>
+            </div>
+            <div class="file-set">
+                <h3><span class="file-path">py49_assign3</span><button class="try-button">この問題を解く</button></h3>
+                <div class="content-wrapper">
+                    <div>
+                        <span class="file-label">py49_assign3.py</span>
+                        <pre class="code-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+total = int(input("総得点"))
+
+grade = "S"
+
+print(grade)
+
+# 実行すると常に S と出力されます
+
+</pre>
+                    </div>
+                    <div>
+                        <span class="file-label">py49_assign3_quest.txt</span>
+                        <pre class="question-container">改造要求
+
+■要求:
+変数totalに入力される数値によって、次のルールに従った出力をしてください。
+
+90以上 S
+80以上89以下 A
+70以上79以下 B
+60以上69以下 C
+59以下 D
+
+入力が100を超える、マイナスになることは考慮しなくて良いです。
+
+ヒント:
+すでに書かれている grade = "S" の行のあとに
+if total &gt;= 90:
+  grade = "S"
+elif total &gt;= 80:
+  grade = "A"
+
+と書くと、変数 grade には最初に "S" が入っていますが、90以上ではなく80以上のときに "A" に上書きされます。このように、点数に応じて grade をどんどん上書きしていくしくみです。同じようにして、"B"、"C"、"D" についても条件を追加し、grade を上書きしてください。
+
+■確認: 課題チェックボタンを押して、確認をしてください。
+</pre>
+                    </div>
+                    <div class="answer-container-panel">
+                        <span class="file-label">py49_assign3_ans.py</span>
+                        <pre class="answer-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+total = int(input("総得点"))
+
+if total &gt;= 90:
+  grade = "S"
+elif total &gt;= 80:
+  grade = "A"
+elif total &gt;= 70:
+  grade = "B"
+elif total &gt;= 60:
+  grade = "C"
+else:
+  grade = "D"
+
+print(grade)
+
+# 
+</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="folder-section" id="folder-python_10_for_if">
+            <h2 class="folder-title">10 7/16の週 2コマ目</h2>
+            <div class="file-set">
+                <h3><span class="file-path">py50_range</span><button class="try-button">この問題を解く</button></h3>
+                <div class="content-wrapper">
+                    <div>
+                        <span class="file-label">py50_range.py</span>
+                        <pre class="code-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+n = int(input("数字"))
+for i in range(n):
+  print(i+1)
+
+# 1から入力した数字までが出力されます。
+</pre>
+                    </div>
+                    <div>
+                        <span class="file-label">py50_range_quest.txt</span>
+                        <pre class="question-container">改造要求
+
+■要求1: 1からではなく、0からスタートするようにしてください。
+
+例: 入力が 3 の場合の出力
+0
+1
+2
+3
+
+ヒント: range(3)は処理(print)を3回繰り返します。この改造では入力が3のとき、4つの数字が出力されていることに注意してみてください。
+
+■確認: 課題チェックボタンを押して、確認をしてください。
+</pre>
+                    </div>
+                    <div class="answer-container-panel">
+                        <span class="file-label">py50_range_ans.py</span>
+                        <pre class="answer-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+n = int(input("数字"))
+for i in range(n+1):
+  print(i)
+
+# 0から入力した数字までが縦に出力されます。
+</pre>
+                    </div>
+                </div>
+            </div>
+            <div class="file-set">
+                <h3><span class="file-path">py51_odd</span><button class="try-button">この問題を解く</button></h3>
+                <div class="content-wrapper">
+                    <div>
+                        <span class="file-label">py51_odd.py</span>
+                        <pre class="code-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+n = int(input("数字"))
+for i in range(n + 1):
+  if i % 2 == 1:
+    print(i,"奇数")
+
+# 0から入力した数字までのうち、奇数だけが出力されます。
+# % 2 は、2で割ったあまりを計算します。よって i % 2 == 1はiを2で割ったあまりが1のとき、という意味になります。
+# またprint(i,"奇数") は変数iの値の横に、奇数という文字を出力するという意味です。
+
+</pre>
+                    </div>
+                    <div>
+                        <span class="file-label">py51_odd_quest.txt</span>
+                        <pre class="question-container">改造要求
+
+■要求1: 奇数だけでなく、偶数も 数字 偶数 と出力してください。
+
+例: 入力が 3 の場合の出力
+0 偶数
+1 奇数
+2 偶数
+3 奇数
+
+ヒント：スペース（インデント）に注意
+Pythonでは、行の先頭にあるスペース（インデント）がとても大切です。どのコードが if の中なのかは、インデントで決まります。うまくいかないときは、行の最初のスペースを確認してみましょう。
+
+たとえば、次のようなコードです：
+  if i % 2 == 1:
+    print(i)
+  else:
+    print(i)
+このコードでは、if と else の前にスペースが2つprint の前にスペースが4つあります。このインデントが正しくないと、エラーが出たり、意図したとおりに動かなかったりします。
+
+■確認: 課題チェックボタンを押して、確認をしてください。
+</pre>
+                    </div>
+                    <div class="answer-container-panel">
+                        <span class="file-label">py51_odd_ans.py</span>
+                        <pre class="answer-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+n = int(input("数字"))
+for i in range(n + 1):
+  if i % 2 == 1:
+    print(i, "奇数")
+  else:
+    print(i, "偶数")
+
+# 0から入力した数字までのうち、奇数だけが出力されます。
+
+</pre>
+                    </div>
+                </div>
+            </div>
+            <div class="file-set">
+                <h3><span class="file-path">py52_multiple</span><button class="try-button">この問題を解く</button></h3>
+                <div class="content-wrapper">
+                    <div>
+                        <span class="file-label">py52_multiple.py</span>
+                        <pre class="code-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+n = int(input("数字"))
+for i in range(n + 1):
+  if i % 2 == 0:
+    print(i,"2の倍数")
+  if i % 3 == 0:
+    print(i,"3の倍数")
+
+# 3を入力した場合、次のように出力されます。0は2の倍数であり3の倍数でもあるので2つ出力されます。
+# 0 2の倍数
+# 0 3の倍数
+# 2 2の倍数
+# 3 3の倍数
+</pre>
+                    </div>
+                    <div>
+                        <span class="file-label">py52_multiple_quest.txt</span>
+                        <pre class="question-container">改造要求
+
+■要求1: 2の倍数であり、かつ、3の倍数でもある 0 は、次のように出力されていました。
+0 2の倍数
+0 3の倍数
+これをまとめて、
+0 2と3の倍数
+と出力するようにしてください。
+
+例: 入力が 3 の場合の出力
+0 2と3の倍数
+2 2の倍数
+3 3の倍数
+
+ヒント1: print(i,"2と3の倍数") を新しく追加します。
+
+ヒント2: かつ、は、 and で作ることができます。
+
+ヒント3: if だけでなく、 elif (ifで無いとき....)も使います。elseは使いません。
+
+■確認: 課題チェックボタンを押して、確認をしてください。
+</pre>
+                    </div>
+                    <div class="answer-container-panel">
+                        <span class="file-label">py52_multiple_ans.py</span>
+                        <pre class="answer-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+n = int(input("数字"))
+for i in range(n + 1):
+  if i % 2 == 0 and i % 3 == 0:
+    print(i,"2と3の倍数")
+  elif i % 2 == 0:
+    print(i,"2の倍数")
+  elif i % 3 == 0:
+    print(i,"3の倍数")
+
+</pre>
+                    </div>
+                </div>
+            </div>
+            <div class="file-set">
+                <h3><span class="file-path">py53_sum</span><button class="try-button">この問題を解く</button></h3>
+                <div class="content-wrapper">
+                    <div>
+                        <span class="file-label">py53_sum.py</span>
+                        <pre class="code-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+total = 0
+n = int(input("数字"))
+for i in range(n + 1):
+  total += i
+
+print(total)
+
+# 0から入力した数字までの合計を計算します。
+# 例えば 10 と入力すると、 55 が出力されます。
+</pre>
+                    </div>
+                    <div>
+                        <span class="file-label">py53_sum_quest.txt</span>
+                        <pre class="question-container">改造要求
+
+■要求1: 0から入力した数字までの、偶数だけの合計を求めるプログラムにしてください。
+
+例1: 入力が 10 の場合、
+30
+
+例2: 入力が 100 の場合、
+2550
+
+ヒント: 偶数は2で割ったあまりが0のとき(i%2==0)とします。そのiのときだけtotalにiを加算するようにすればよいです。
+
+■確認: 課題チェックボタンを押して、確認をしてください。
+</pre>
+                    </div>
+                    <div class="answer-container-panel">
+                        <span class="file-label">py53_sum_ans.py</span>
+                        <pre class="answer-container"># まずは、左側の文字をすべて右側に
+# 書き写してみてください。
+
+total = 0
+n = int(input("数字"))
+for i in range(n + 1):
+  if i % 2 == 0:
+    total += i
+
+print(total)
+
+</pre>
+                    </div>
+                </div>
+            </div>
+            <div class="file-set">
+                <h3><span class="file-path">py54_count</span><button class="try-button">この問題を解く</button></h3>
+                <div class="content-wrapper">
+                    <div>
+                        <span class="file-label">py54_count.py</span>
+                        <pre class="code-container"># これは、0からプログラムを書く課題です。
+# 改造要求を開いてください。
+# また、これまでの課題も参考にしてみてください。
+
+
+</pre>
+                    </div>
+                    <div>
+                        <span class="file-label">py54_count_quest.txt</span>
+                        <pre class="question-container">改造要求
+
+■要求1: 0から入力した数字までの、5で割り切れて、かつ、7で割り切れる数の 個数 を出力するプログラムを作成してください。
+
+例1: 入力が 100 の場合、
+3
+
+例2: 入力が 1000 の場合、
+29
+
+ヒント: まず数える数を保存する変数を作成して0をセットします(例えば c=0)。
+入力する数字は、その保存する変数をnとすると、n=int(input("数字")) とします。
+繰り返しはfor、0からその数字まではrange(n+1)、ifの条件はかつ(and)、そして1つ数を増やすはc+=1です。
+
+■確認: 課題チェックボタンを押して、確認をしてください。
+</pre>
+                    </div>
+                    <div class="answer-container-panel">
+                        <span class="file-label">py54_count_ans.py</span>
+                        <pre class="answer-container">c = 0
+n = int(input("数字"))
+for i in range(n + 1):
+  if i % 5 == 0 and i % 7 == 0:
+    c += 1
+print(c)
+</pre>
+                    </div>
+                </div>
+            </div>
+            <div class="file-set">
+                <h3><span class="file-path">py55_if_for</span><button class="try-button">この問題を解く</button></h3>
+                <div class="content-wrapper">
+                    <div>
+                        <span class="file-label">py55_if_for.py</span>
+                        <pre class="code-container">games = ["スマブラ","スプラ","モンハン","ポケモン","マイクラ"]
+kadai = ["プログラミング","英語"]
+
+yaruki = input("やる気")
+
+if yaruki == "ある":
+  for k in kadai:
+    print(k+"課題終了")
+
+# やる気があるとき、すべての課題が終わります。
+</pre>
+                    </div>
+                    <div>
+                        <span class="file-label">py55_if_for_quest.txt</span>
+                        <pre class="question-container">改造要求
+
+■要求:
+やる気がないとき（ある 以外が入力されたとき）、すべてのゲームをプレイするようにしてください。
+
+例1: 入力 ない
+スマブラをプレイ
+スプラをプレイ
+モンハンをプレイ
+ポケモンをプレイ
+マイクラをプレイ
+
+例2: 入力 ある
+プログラミング課題終了
+英語課題終了
+
+ヒント: ある 以外は、else: でプログラムを作ることができます。また、for文を使うとゲーム一覧を出力するのが楽になります。
+
+
+■確認: 課題チェックボタンを押して、確認をしてください。
+</pre>
+                    </div>
+                    <div class="answer-container-panel">
+                        <span class="file-label">py55_if_for_ans.py</span>
+                        <pre class="answer-container">games = ["スマブラ","スプラ","モンハン","ポケモン","マイクラ"]
+kadai = ["プログラミング","英語"]
+
+yaruki = input("やる気")
+
+if yaruki == "ある":
+  for k in kadai:
+    print(k+"課題終了")
+else:
+  for g in games:
+    print(g+"をプレイ")
+</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        // document.addEventListener('DOMContentLoaded', async () => {
+        //     const fileListContainer = document.getElementById('file-list');
+        //     const fixedHeader = document.getElementById('fixed-header');
+        //     const currentFolderTitle = fixedHeader.querySelector('.current-folder-title');
+        //     const tocList = document.getElementById('toc-list');
+        //     let folderSections = [];
+
+        //     // フォルダ名と表示名のマッピング
+        //     const folderNameMap = {
+        //         '01': '01 6/18の週 1コマ目',
+        //         '02': '02 6/18の週 2コマ目',
+        //         '03': '03 6/25の週 1コマ目',
+        //         '04': '04 6/25の週 2コマ目',
+        //         '05': '05 7/2の週  1コマ目',
+        //         '06': '06 7/2の週  2コマ目',
+        //         '07': '07 7/9の週  1コマ目',
+        //         '08': '08 7/9の週  2コマ目',
+        //         '09': '09 7/16の週 1コマ目',
+        //         '10': '10 7/16の週 2コマ目'
+        //     };
+
+        //     try {
+        //         const response = await fetch('/');
+        //         const html = await response.text();
+        //         const parser = new DOMParser();
+        //         const doc = parser.parseFromString(html, 'text/html');
+        //         const links = Array.from(doc.querySelectorAll('a'));
+
+        //         let folders = links
+        //             .filter(link => link.textContent.match(/^python_(\d{2})_.*\/$/))
+        //             .map(link => {
+        //                 const originalFolderName = link.textContent.replace(/\/$/, '');
+        //                 const folderNumberMatch = originalFolderName.match(/python_(\d{2})_/);
+        //                 const folderNumber = folderNumberMatch ? folderNumberMatch[1] : null;
+
+        //                 const displayName = folderNameMap[folderNumber] || originalFolderName;
+        //                 return {
+        //                     original: originalFolderName,
+        //                     number: parseInt(folderNumber),
+        //                     display: displayName
+        //                 };
+        //             })
+        //             .sort((a, b) => a.number - b.number);
+
+        //         for (const folder of folders) {
+        //             const folderSection = document.createElement('div');
+        //             folderSection.className = 'folder-section';
+        //             folderSection.id = `folder-${folder.original}`;
+        //             folderSection.innerHTML = `<h2 class="folder-title">${folder.display}</h2>`;
+
+        //             const tocItem = document.createElement('li');
+        //             const tocLink = document.createElement('a');
+        //             tocLink.href = `#folder-${folder.original}`;
+        //             tocLink.textContent = folder.display;
+        //             tocItem.appendChild(tocLink);
+        //             tocList.appendChild(tocItem);
+
+
+        //             const folderResponse = await fetch(`/${folder.original}/`);
+        //             const folderHtml = await folderResponse.text();
+        //             const folderDoc = parser.parseFromString(folderHtml, 'text/html');
+        //             const folderLinks = Array.from(folderDoc.querySelectorAll('a'));
+
+        //             let files = folderLinks
+        //                 .map(link => link.textContent)
+        //                 .filter(name => name.match(/^py\d{2}_.*(\.py|_quest\.txt)$/))
+        //                 .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+
+        //             let fileSets = {};
+        //             for (const file of files) {
+        //                 const baseName = file.replace(/_ans\.py$|_quest\.txt$|\.py$/, '');
+        //                 if (!fileSets[baseName]) {
+        //                     fileSets[baseName] = {};
+        //                 }
+        //                 if (file.endsWith('.py') && !file.endsWith('_ans.py')) {
+        //                     fileSets[baseName].py = file;
+        //                 } else if (file.endsWith('_quest.txt')) {
+        //                     fileSets[baseName].quest = file;
+        //                 } else if (file.endsWith('_ans.py')) {
+        //                     fileSets[baseName].ans = file;
+        //                 }
+        //             }
+
+        //             for (const baseName in fileSets) {
+        //                 const set = fileSets[baseName];
+        //                 if (set.py && set.quest && set.ans) {
+        //                     const fileSetDiv = document.createElement('div');
+        //                     fileSetDiv.className = 'file-set';
+
+        //                     const pyPath = `/${folder.original}/${set.py}`;
+        //                     const pyResponse = await fetch(pyPath);
+        //                     const pyContent = await pyResponse.text();
+
+        //                     const questPath = `/${folder.original}/${set.quest}`;
+        //                     const questResponse = await fetch(questPath);
+        //                     const questContent = await questResponse.text();
+
+        //                     const ansPath = `/${folder.original}/${set.ans}`;
+        //                     const ansResponse = await fetch(ansPath);
+        //                     const ansContent = await ansResponse.text();
+
+        //                     fileSetDiv.innerHTML = `
+        //                         <h3><span class="file-path">${baseName}</span><button class="try-button">この問題を解く</button></h3>
+        //                         <div class="content-wrapper">
+        //                             <div>
+        //                                 <span class="file-label">${set.py}</span>
+        //                                 <pre class="code-container">${pyContent}</pre>
+        //                             </div>
+        //                             <div>
+        //                                 <span class="file-label">${set.quest}</span>
+        //                                 <pre class="question-container">${questContent}</pre>
+        //                             </div>
+        //                             <div class="answer-container-panel">
+        //                                 <span class="file-label">${set.ans}</span>
+        //                                 <pre class="answer-container">${ansContent}</pre>
+        //                             </div>
+        //                         </div>
+        //                     `;
+        //                     folderSection.appendChild(fileSetDiv);
+        //                 }
+        //             }
+        //             fileListContainer.appendChild(folderSection);
+        //             folderSections.push(folderSection);
+        //         }
+
+        //         const observerOptions = {
+        //             root: null,
+        //             rootMargin: '-20% 0px -80% 0px',
+        //             threshold: 0
+        //         };
+
+        //         const observer = new IntersectionObserver((entries) => {
+        //             entries.forEach(entry => {
+        //                 if (entry.isIntersecting) {
+        //                     const folderId = entry.target.id;
+        //                     const originalFolderName = folderId.replace('folder-', '');
+        //                     const folderData = folders.find(f => f.original === originalFolderName);
+        //                     if (folderData) {
+        //                         currentFolderTitle.textContent = `現在表示中: ${folderData.display}`;
+        //                     }
+
+        //                     document.querySelectorAll('#toc-list a').forEach(link => {
+        //                         link.classList.remove('active');
+        //                     });
+        //                     document.querySelector(`#toc-list a[href="#${folderId}"]`).classList.add('active');
+        //                 }
+        //             });
+        //         }, observerOptions);
+
+        //         folderSections.forEach(section => {
+        //             observer.observe(section);
+        //         });
+
+        //         tocList.addEventListener('click', (event) => {
+        //             if (event.target.tagName === 'A') {
+        //                 event.preventDefault();
+        //                 const targetId = event.target.getAttribute('href').substring(1);
+        //                 const targetElement = document.getElementById(targetId);
+        //                 if (targetElement) {
+        //                     const headerHeight = fixedHeader.offsetHeight;
+        //                     const tocHeight = document.getElementById('table-of-contents').offsetHeight;
+        //                     const offset = headerHeight + tocHeight + 3;
+
+        //                     const elementPosition = targetElement.getBoundingClientRect().top + window.pageYOffset;
+        //                     const offsetPosition = elementPosition - offset;
+
+        //                     window.scrollTo({
+        //                         top: offsetPosition,
+        //                         behavior: 'smooth'
+        //                     });
+        //                 }
+        //             }
+        //         });
+
+
+        //         document.querySelectorAll(".try-button").forEach(e => {
+        //             e.addEventListener("click", function () {
+        //                 const parent = this.parentElement.parentElement;
+        //                 const code = parent.querySelector(".code-container").textContent;
+        //                 const quest = parent.querySelector(".question-container").textContent;
+        //                 const ans = parent.querySelector(".answer-container").textContent;
+        //                 console.log("コード:\n", code);
+        //                 console.log("問題:\n", quest);
+        //                 console.log("解答:\n", ans);
+        //             })
+        //         })
+
+        //     } catch (error) {
+        //         fileListContainer.innerHTML = `<p>ファイルリストの取得中にエラーが発生しました: ${error}</p>`;
+        //         console.error("Error fetching file list:", error);
+        //     }
+        // });
+        import "./list_python_static.js";
+
+    </script>
+
+
+</body>
+
+</html>

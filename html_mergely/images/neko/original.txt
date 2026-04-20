@@ -1,0 +1,6 @@
+
+https://tokidokiame.com/galleryhouse/?p=7330
+
+画像の切り取り、pngを横に並べるは、以下のmagickというフリーソフトを使用する。
+https://imagemagick.org/
+

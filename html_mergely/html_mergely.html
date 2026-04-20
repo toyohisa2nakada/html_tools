@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8" />
+	<title>html mergely (diff)</title>
+
+	<!--
+		mergelyのドキュメント
+		https://www.mergely.com/doc
+		cssファイルの内容をjavascriptで変更するため、CDNからダウンロードしたものをlibsフォルダ以下に保存して使用する。
+		最新の5.3.6では、mode:pythonが指定できない。よって5.1.1を使用する。
+		ファイルは、cdnからダウンロードして使用している。
+		5.1.1のmergely.min.jsはconsole.logが残っているので、そこはコメントアウトした。
+	-->
+	<script src="libs/mergely5.1.1/mergely.min.js"></script>
+	<link rel="stylesheet" href="libs/mergely5.1.1/mergely.css" />
+
+	<!--
+		html to canvas
+		https://github.com/niklasvh/html2canvas
+
+		html文字を画像化する方法には決定的なものが無い。
+		上記のhtml2canvas以外に試したものは、https://github.com/bubkoo/html-to-image である。
+		このhtml-to-imageは、表示を繰り返す？画面上部の文字がなぜか画面下部にもう一度表示されるなどの
+		問題点があり、使用を断念した。
+	-->
+	<script src="./libs/html2canvas.js"></script>
+
+	<!--
+		画像をポップアップで表示するライブラリ
+		jqueryが必要なので、jquery付きのcdnを使用する。
+	-->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.5/js/lightbox-plus-jquery.min.js"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.5/css/lightbox.min.css" />
+
+	<!--
+		きれいなポップアップを表示するライブラリ
+		https://sweetalert2.github.io/
+	-->
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+	<!--
+		dropdownlistにチェックボックスを付けるために、
+		ポップアップでそれっぽく作る
+  -->
+	<link rel="stylesheet" href="https://unpkg.com/tippy.js@6/dist/tippy.css" />
+	<script src="https://unpkg.com/@popperjs/core@2"></script>
+	<script src="https://unpkg.com/tippy.js@6"></script>
+
+
+	<!--
+		音を鳴らす
+  -->
+	<script src="./libs/sound.js"></script>
+
+
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		html,
+		body,
+		.app {
+			width: 100%;
+			height: 100%;
+			display: flex;
+			flex-direction: column;
+			background-color: #f5f5f5;
+		}
+
+		.header {
+			height: 28px;
+			margin: 4px;
+			display: flex;
+			align-items: center;
+		}
+
+		.content {
+			width: 100%;
+			height: 100%;
+			flex: 0 1 auto;
+			overflow: auto;
+		}
+
+		#footer {
+			display: flex;
+			height: 30vh;
+			transition: height 0.5s ease;
+			flex-shrink: 0;
+			position: relative;
+			margin: 4px;
+			background-color: #fff;
+			box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.2);
+			border-radius: 10px 10px 0 0;
+		}
+
+		.footer_button_panel {
+			position: absolute;
+			top: 0;
+			right: 0;
+			display: flex;
+		}
+
+		.icon-button {
+			border: none;
+			background: none;
+			padding: 2px 0px;
+			font-size: 20px;
+			cursor: pointer;
+		}
+
+		#mergely {
+			height: 100%;
+		}
+
+		/* mergelyの行番号のところに表示されるマージボタンを非表示にする */
+		.merge-button {
+			display: none;
+		}
+
+		.header_panel {
+			margin: 0px 2px;
+		}
+
+		label[for="download_filename"],
+		label[for="kadai_filename"],
+		label[for="kadai_quest"] {
+			font-size: 8px;
+		}
+
+		#download_filename,
+		#kadai_filename,
+		#kadai_quest {
+			width: 60px;
+		}
+
+		#kadai_status_panel {
+			margin-left: auto;
+			font-size: 10px;
+		}
+
+		#kadai_status_panel>span:not(.no-style) {
+			background-color: #dddddd;
+			color: #f0f0f0;
+			margin-left: 2px;
+			padding: 0 3px;
+		}
+
+		#kadai_status_panel>span.finished {
+			color: #7F57D3;
+		}
+
+		#download_button_panel {
+			margin-left: auto;
+			display: inline-flex;
+			align-items: baseline;
+		}
+
+		#create_encoded_html_panel {
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			padding: 10px 20px;
+			font-size: 16px;
+			display: none;
+		}
+
+		#create_encoded_html {
+			background-color: #4CAF50;
+			color: white;
+			border: none;
+			border-radius: 4px;
+			cursor: pointer;
+			padding: 10px;
+			margin: 10px;
+		}
+
+		#plane_html_file {
+			display: none;
+		}
+
+		#editor_output {
+			width: 100%;
+			height: 100%;
+			border: none;
+			display: block;
+		}
+
+		.button {
+			background-color: #5C7080;
+			border: 1px solid #4A5A67;
+			color: #F0F0F0;
+			padding: 2px 6px;
+			margin-left: 1px;
+			text-align: center;
+			border-radius: 6px;
+			cursor: pointer;
+			box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+			transition: background-color 0.3s, box-shadow 0.3s;
+		}
+
+		.button:hover {
+			background-color: #4A5A67;
+			box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+		}
+
+		input[type="checkbox"] {
+			accent-color: #5C7080;
+		}
+
+		/* javascript演習のhtmlでプレビューが動作しないことがあるのでカット */
+		#final_preview_button {
+			display: none !important;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="app">
+		<div class="header">
+			<div class="kadai_filename_panel">
+				<label for="kadai_filename">課題</label>
+				<select id="kadai_filename">
+					<option></option>
+				</select>
+			</div>
+			<div class="kadai_quest_panel">
+				<label for="kadai_quest">改造要求</label>
+				<select id="kadai_quest">
+				</select>
+			</div>
+
+			<button id="menu-btn">設定</button>
+			<div id="menu-content" style="display:none;">
+				<span id="key_sounds_panel" class="header_panel">
+					<label for="key_sounds">タイプ音</label>
+					<select id="key_sounds">
+						<option value=""></option>
+						<option value="default" selected>タイプライター</option>
+						<option value="peen">ピーン</option>
+						<option value="punch">パンチ</option>
+						<option value="kok">コッ</option>
+						<option value="hyu">ヒュッ</option>
+						<option value="slash">斬る</option>
+						<option value="temple_bell">鐘</option>
+						<option value="taiko">太鼓</option>
+						<option value="hit">打撃</option>
+						<option value="wooden_clappers">拍子木</option>
+						<option value="by_key">キーに応じて変化する</option>
+					</select>
+				</span>
+			</div>
+
+			<span id="instruction_panel" class="header_panel">
+				<button id="instruction" class="icon-button">ℹ️</button>
+			</span>
+			<span id="kadai_status_panel" class="header_panel">
+				<span class="no-style">✔️</span>
+			</span>
+			<span id="autoupdate_panel" class="header_panel">
+				<label><input type="checkbox" id="autoupdate">差分</label>
+			</span>
+			<span id="download_button_panel" class="header_panel">
+				<label for="download_filename">ダウンロードファイルの名前</label>
+				<input type="text" placeholder="" id="download_filename">
+				<button id="download_button" class="button">download</button>
+			</span>
+		</div>
+		<div class="content">
+			<div id="mergely"></div>
+		</div>
+		<div id="footer">
+			<div class="footer_button_panel">
+				<div id="footer_button_panel_module">
+				</div>
+				<div>
+					<button id="submit_to_screen" class="button">スクリーンに送る</button>
+					<button id="footer-toggle" title="縮小" class="icon-button">🔽</button>
+				</div>
+			</div>
+			<iframe id="editor_output"></iframe>
+		</div>
+		<a id="lightbox2_popup" href="" data-lightbox="image-1"
+			data-title="完成版のプレビューでは、少し表示が崩れることがありますが、課題ではだいたい見た目が合っていれば問題ありません。自分で書いたHTMLは画面の下にプレビューされます。"
+			style="visibility: hidden; position: absolute;"></a>
+	</div>
+	<div id="create_encoded_html_panel">
+		<button id="create_encoded_html">エンコードするHTMLファイルを選択してください</button>
+		<input type="file" id="plane_html_file" multiple>
+		<button id="return_from_create_encoded_html_to_normal">元に戻る</button>
+		<textarea id="encoded_html" rows="40" cols="100"></textarea>
+	</div>
+
+	<script type="module">
+		// a2e
+		[Array, "a2e"].reduce((a, e) => { a.prototype[e] = function () { return this.reduce((e, f) => { f(e); return e; }); }; Object.defineProperty(a.prototype, e, { enumerable: false }); });
+
+
+		// 課題のBase64エンコード
+		const kadais = {
+			// Webシステム演習
+			"html_01_link_image.html": "PCFET0NUWVBFIGh0bWw+DQo8aHRtbCBsYW5nPSJqYSI+DQo8aGVhZD4NCgk8IS0tIOOBk+OCjOOBr+OCs+ODoeODs+ODiOOBp+OBmeOAguihjOOBruabuOOBjeWni+OCgeOCkuWPs+OBq+OBmuOCieOBmeOBruOBr3RhYuOCreODvOOCkuS9v+OBhOOBvuOBmeOAgiAtLT4NCgk8bWV0YSBjaGFyc2V0PSJVVEYtOCI+DQoJPHRpdGxlPuOCteODs+ODl+ODq+ODmuODvOOCuDwvdGl0bGU+DQo8L2hlYWQ+DQo8Ym9keT4NCgk8aDE+44KI44GG44GT44Gd77yBPC9oMT4NCg0KCTxwPuOBk+OCjOOBr+OCteODs+ODl+ODq+OBruauteiQveOBp+OBmeOAgjwvcD4NCg0KCTxkaXY+DQoJCTxzcGFuPuOBk+OBk+OBrzxzcGFuIHN0eWxlPSJjb2xvcjogcmVkOyI+6LWk44GEPC9zcGFuPuODhuOCreOCueODiOOCkuWQq+OCgOmDqOWIhuOBp+OBmeOAgjwvc3Bhbj4NCgk8L2Rpdj4NCg0KCTxwPuS7peS4i+OBruODquODs+OCr+OCkuOCr+ODquODg+OCr+OBl+OBpuOBv+OBpuOBj+OBoOOBleOBhOOAgg0KCQl0YXJnZXTjgajjga/jg6rjg7Pjgq/lhYjjga7ooajnpLrmlrnms5XvvIjkvosgX3NlbGbjgb7jgZ/jga/nnIHnlaXvvJrlkIzjgZjjgr/jgrDjgIFfYmxhbmvvvJrliKXjgr/jgrDvvInjgpLmjIflrprjgZnjgovjgZ/jgoHjga7lsZ7mgKfjgafjgZnjgII8L3A+DQoJPGEgaHJlZj0naHR0cHM6Ly93d3cuaS11LmFjLmpwLycgdGFyZ2V0PSJfYmxhbmsiPkV4YW1wbGXjgrXjgqTjg4jjgbg8L2E+DQoNCgk8cD4NCgkJ55S75YOP44Gu6KGo56S644Gn44GZ44CCaW1hZ2VzL2xvZ28uc3Zn44Gv44CB44OA44Km44Oz44Ot44O844OJ44GX44GfSFRNTOODleOCoeOCpOODq+OBp+OBr+ihqOekuuOBp+OBjeOBvuOBm+OCk+OAgg0KCQnjgqTjg7Pjgr/jg7zjg43jg4Pjg4jjgYvjgonnlLvlg4/jga7jgqLjg4njg6zjgrnjgpLlj5blvpfjgZfjgablhaXjgozmm7/jgYjjgabjgb/jgabjgY/jgaDjgZXjgYTjgIINCgkJ44G+44GfYWx044Gv44CB55S75YOP44GM6KGo56S644Gn44GN44Gq44GE44Go44GN44Gr5Luj44KP44KK44Gr6KGo56S644GV44KM44KL44OG44Kt44K544OI44Gn44GZ44CCDQoJPC9wPg0KCTxpbWcgc3JjPSJpbWFnZXMvbG9nby5zdmciIGFsdD0i44K144Oz44OX44Or55S75YOPIj4NCjwvYm9keT4NCjwvaHRtbD4NCg=="
+		};
+		const kadai_quests = {
+			"html_01_link_image.html": {
+				"html_01_1_link.txt":"5pS56YCg5oyH56S644OV44Kh44Kk44OrICgxKSBodG1sXzAxX2xpbmtfaW1hZ2UuaHRtbA0KDQrilqDnm67nmoQ6IOWklumDqOODquOCveODvOOCue+8iOODquODs+OCr+OBqOeUu+WDj++8ieOBruWItuW+oQ0KDQrilqDkvZzmpa0wOiDmnIDliJ3jga7nirbmhYvjgpLnorroqo3jgZnjgosNCuODluODqeOCpuOCtuOBp+mWi+OBjeOAgeODquODs+OCr+OBjOWQjOOBmOOCv+ODluOBp+mWi+OBj+OBk+OBqOOAgeeUu+WDj+OBjOOAjOOCteODs+ODl+ODq+eUu+WDj+OAjeOBqOOBhOOBhuaWh+Wtl+OBq+OBquOBo+OBpuOBhOOCi+OBk+OBqOOCkueiuuiqjeOBmeOCi+OAgg0KDQrilqDkvZzmpa0xOiDjg6rjg7Pjgq/jga7plovjgY3mlrnjgpLlpInjgYjjgosNCjxhPuOCv+OCsOOBruS4reOBq+OBguOCiyB0YXJnZXQ9Il9ibGFuayIg44KSIHRhcmdldD0iX3NlbGYiIOOBq+abuOOBjeaPm+OBiOOCi+OAgg0K5LiK5pu444GN5L+d5a2Y44GX44Gm44OW44Op44Km44K244KS5pu05paw44GX44CB44Oq44Oz44Kv44KS44Kv44Oq44OD44Kv44GX44Gf44Go44GN44Gr5ZCM44GY55S76Z2i44Gn44Oa44O844K444GM5YiH44KK5pu/44KP44KL44GT44Go44KS56K66KqN44GZ44KL44CCDQoNCuKWoOS9nOalrTI6IOOCpOODs+OCv+ODvOODjeODg+ODiOS4iuOBrueUu+WDj+OCkuihqOekuuOBleOBm+OCiw0KPGltZz7jgr/jgrDjga4gc3JjPSJpbWFnZXMvbG9nby5zdmciIOOBrumDqOWIhuOCkuOAgeODjeODg+ODiOOBp+imi+OBpOOBkeOBn+WlveOBjeOBqueUu+WDj+OBrlVSTO+8iOWPs+OCr+ODquODg+OCr+OBl+OBpuOAjOeUu+WDj+OCouODieODrOOCueOCkuOCs+ODlOODvOOAjeOBl+OBn+OCguOBru+8ieOBq+iyvOOCiuabv+OBiOOCi+OAgg0KDQrilqDkvZzmpa0zOiDku6Pmm7/jg4bjgq3jgrnjg4jjgpLlpInmm7TjgZnjgosNCmFsdD0i44K144Oz44OX44Or55S75YOPIiDjga7jgIzjgrXjg7Pjg5fjg6vnlLvlg4/jgI3jgajjgYTjgYbmloflrZfjgpLjgIHooajnpLrjgZXjgZvjgZ/nlLvlg4/jga7lhoXlrrnjgpLoqqzmmI7jgZnjgovoqIDokYnjgavmm7jjgY3mj5vjgYjjgovjgIINCg0K4pag56K66KqNDQrnlLvlg4/jgYzmraPjgZfjgY/ooajnpLrjgZXjgozjgIHnlLvlg4/jga7kuIrjgavjg57jgqbjgrnjgpLnva7jgYTjgZ/jgajjgY3jgoToqq3jgb/ovrzjgb/lpLHmlZfmmYLjgavmlrDjgZfjgYToqqzmmI7mlofjgYzlh7rjgovjgZPjgajjgpLnorroqo3jgZnjgovjgII="
+			},
+		};
+		// const kadais = {
+		// 	// Webシステム演習
+		// 	"js_08_invader.html": "PCFET0NUWVBFIGh0bWw+DQo8aHRtbCBsYW5nPSJqYSI+DQoNCjxoZWFkPg0KICA8bWV0YSBjaGFyc2V0PSJVVEYtOCI+DQo8L2hlYWQ+DQoNCjxib2R5Pg0KICA8Y2FudmFzIGlkPSJnYW1lIiB3aWR0aD0iNDAwIiBoZWlnaHQ9IjE0MCI+PC9jYW52YXM+DQogIDxzY3JpcHQ+DQogICAgY29uc3QgY2FudmFzID0gZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoImdhbWUiKTsNCiAgICBjb25zdCBjdHggPSBjYW52YXMuZ2V0Q29udGV4dCgiMmQiKTsNCg0KICAgIC8vIOiHquapn+OBruWumue+qQ0KICAgIGNvbnN0IHBsYXllciA9IHsNCiAgICAgIHg6IDE4MCwgeTogMTMwLCB3OiAxMCwgaDogMTAsDQogICAgICBjb2xvcjogImxpbWUiLCBhbGl2ZTogdHJ1ZSwNCiAgICB9Ow0KDQogICAgLy8g5pW15qmf44Gu5a6a576pDQogICAgY29uc3QgZW5lbXkgPSB7DQogICAgICB4OiAxMDAsIHk6IDIsIHc6IDIwLCBoOiAxMCwNCiAgICAgIGNvbG9yOiAicmVkIiwgYWxpdmU6IHRydWUsDQogICAgfTsNCg0KICAgIGZ1bmN0aW9uIHVwZGF0ZSgpIHsNCiAgICB9DQoNCiAgICAvLyDmj4/nlLvjgpLjgZnjgovplqLmlbANCiAgICBmdW5jdGlvbiBkcmF3KCkgew0KICAgICAgLy8g44Ky44O844Og44Gu54q25oWL44KS5pu05paw44GZ44KLDQogICAgICB1cGRhdGUoKTsNCg0KICAgICAgLy8g44Kt44Oj44Oz44OQ44K55YWo5L2T44KS6buS44Gn5aGX44KLDQogICAgICBjdHguZmlsbFN0eWxlID0gImJsYWNrIjsNCiAgICAgIGN0eC5maWxsUmVjdCgwLCAwLCBjYW52YXMud2lkdGgsIGNhbnZhcy5oZWlnaHQpOw0KDQogICAgICAvLyDoh6rmqZ/jga7mj4/nlLsNCiAgICAgIGlmIChwbGF5ZXIuYWxpdmUpIHsNCiAgICAgICAgY3R4LmZpbGxTdHlsZSA9IHBsYXllci5jb2xvcjsNCiAgICAgICAgY3R4LmZpbGxSZWN0KHBsYXllci54LCBwbGF5ZXIueSwgcGxheWVyLncsIHBsYXllci5oKTsNCiAgICAgIH0NCg0KICAgICAgLy8g5pW15qmf44Gu5o+P55S7DQogICAgICBpZiAoZW5lbXkuYWxpdmUpIHsNCiAgICAgICAgY3R4LmZpbGxTdHlsZSA9IGVuZW15LmNvbG9yOw0KICAgICAgICBjdHguZmlsbFJlY3QoZW5lbXkueCwgZW5lbXkueSwgZW5lbXkudywgZW5lbXkuaCk7DQogICAgICB9DQoNCiAgICAgIC8vIOasoeODleODrOODvOODoOOBruaPj+eUu+OCkuOCt+OCueODhuODoOOBq+S+nemgvOOBmeOCiw0KICAgICAgcmVxdWVzdEFuaW1hdGlvbkZyYW1lKGRyYXcpOw0KICAgIH0NCiAgICBkcmF3KCk7DQoNCiAgPC9zY3JpcHQ+DQo8L2JvZHk+DQoNCjwvaHRtbD4="
+		// };
+		// const kadai_quests = {
+		// 	"js_08_invader.html": {
+		// 		"js_08_1_p_move.txt": "5pS56YCg5oyH56S644OV44Kh44Kk44OrICgxKQ0KDQrilqDnm67nmoQ6IOiHquapn+OBjOenu+WLleOBmeOCiw0KDQrilqDkvZzmpa0wOiDmnIDliJ3jga7jg5fjg63jgrDjg6njg6DjgYzmraPnorrjgavmm7jjgY/lhpnjgZXjgozjgabjgYTjgovjgYvnorroqo3jgZnjgosNCum7kuOBhOaoqumVt+OBrueUu+mdouOBruS4iuOBruaWueOBq+i1pOiJsuOBruWbm+inku+8iOaVteapn++8ieOAgeS4i+OBruaWueOBq+e3keiJsuOBruWbm+inku+8iOiHquapn++8ieOBjOihqOekuuOBleOCjOOBpuOBhOOCi+OAgg0K44GT44Gu54q25oWL44Gn44Gv55+i5Y2w44Kt44O844KS5oq844GX44Gm44KC5L2V44KC5YuV44GL44Gq44GE44GT44Go44KS56K66KqN44GZ44KL44CCDQoNCuKWoOS9nOalrTE6IOOCreODvOOBruOCpOODmeODs+ODiOOCkuWPluW+l+OBmeOCiw0KZnVuY3Rpb24gdXBkYXRlKCkg44Gu5LiK44GrDQrku6XkuIvjgpLov73liqDjgZnjgovjgIINCiAgICBjb25zdCBrZXlzID0ge307DQogICAgZG9jdW1lbnQuYWRkRXZlbnRMaXN0ZW5lcigia2V5ZG93biIsIGUgPT4gew0KICAgICAga2V5c1tlLmNvZGVdID0gdHJ1ZTsNCiAgICB9KTsNCiAgICBkb2N1bWVudC5hZGRFdmVudExpc3RlbmVyKCJrZXl1cCIsIGUgPT4gew0KICAgICAga2V5c1tlLmNvZGVdID0gZmFsc2U7DQogICAgfSk7DQoNCuKWoOS9nOalrTI6IOOCreODvOOBjOaKvOOBleOCjOOBn+OBqOOBjeOBq+OAgeiHquapn+OBrnjou7jluqfmqJnjga7kvY3nva7jgpLlpInmm7TjgZnjgosNCmZ1bmN0aW9uIHVwZGF0ZSgpIOOBruS4re+8iOOBpOOBvuOCiuOAgXsg44GL44KJIH0g44G+44Gn44Gu6ZaT77yJ44Gr44CBDQrku6XkuIvjgpLov73liqDjgZnjgovjgIINCiAgICAgIGlmIChrZXlzWyJBcnJvd0xlZnQiXSkgew0KICAgICAgICBwbGF5ZXIueCAtPSAyOw0KICAgICAgfQ0KICAgICAgaWYgKGtleXNbIkFycm93UmlnaHQiXSkgew0KICAgICAgICBwbGF5ZXIueCArPSAyOw0KICAgICAgfQ0KDQrilqDnorroqo0NCuW3puWPs+OBruefouWNsOOCreODvOOBp+iHquapn+OBjOW3puWPs+OBq+enu+WLleOBmeOCi+OBk+OBqOOCkueiuuiqjeOBmeOCi+OAgg0K",
+		// 		"js_08_2_e_move.txt": "5pS56YCg5oyH56S644OV44Kh44Kk44OrICgyKQ0KDQrilqDnm67nmoQ6IOaVteapn+OBjOenu+WLleOBmeOCiw0KDQrilqDkvZzmpa0xOiDmlbXjgYzlj7Pjgavli5XjgYTjgabjgYTjgovjgYvlt6bjgavli5XjgYTjgabjgYTjgovjgYvjgpLoqJjpjLLjgZnjgovlpInmlbDjgpLkvZzjgosNCmNvbnN0IGVuZW15IOWkieaVsOOBq+OAgeS7peS4i+OCkui/veWKoOOBmeOCi+OAgg0KICAgICAgZGlyZWN0aW9uOiAxLA0K6KOc6LazOiBlbmVteSDjga8ge3g6MTAwLCB5OjIsIC4uLn0g44Gu44KI44GG44Gr6KSH5pWw44Gu5oOF5aCx44KS44G+44Go44KB44Gm5oyB44Gk5aSJ5pWw44Gn44CBZW5lbXkueCDjgoQgZW5lbXkueSDjga7jgojjgYbjgavkvb/jgYbjgILjgZPjgZPjgafjga/np7vli5XmlrnlkJHjgpLooajjgZkgZW5lbXkuZGlyZWN0aW9uIOOCkiB7IH0g44Gu5Lit44GrIGRpcmVjdGlvbjogMSwg44Go44GX44Gm6L+95Yqg44GZ44KL44CCDQoNCuKWoOS9nOalrTI6IOiHquWLleeahOOBq+aVteapn+OBrnjou7jluqfmqJnjgpLlpInmm7TjgZnjgosNCmZ1bmN0aW9uIHVwZGF0ZSgpIOOBruS4re+8iOOBpOOBvuOCiuOAgXsg44GL44KJIH0g44G+44Gn44Gu6ZaT77yJ44Gr44CBDQrku6XkuIvjgpLov73liqDjgZnjgovjgIINCiAgICAgIGlmIChlbmVteS5hbGl2ZSkgew0KICAgICAgICBlbmVteS54ICs9IDMgKiBlbmVteS5kaXJlY3Rpb247DQogICAgICAgIGlmIChlbmVteS54IDw9IDAgfHwgZW5lbXkueCArIGVuZW15LncgPj0gY2FudmFzLndpZHRoKSB7DQogICAgICAgICAgZW5lbXkuZGlyZWN0aW9uICo9IC0xOw0KICAgICAgICB9DQogICAgICB9DQroo5zotrM6IOi/veWKoOOBmeOCi+euh+aJgOOBr+OAgeaUuemAoDHjgafov73liqDjgZfjgZ/jgq3jg7zmk43kvZzpg6jliIYoaWYoa2V5c1siQXJyb3dMZWZ0Il0pLi4uKeOBruS4iuOBp+OCguS4i+OBp+OCguani+OBhOOBvuOBm+OCk+OAgg0KDQrilqDnorroqo0NCuaVteapn+OBjOW3puWPs+OBq+enu+WLleOBl+OBpuOBhOOCi+OBk+OBqOOCkueiuuiqjeOBmeOCi+OAgg0K",
+		// 		"js_08_3_e_bullets.txt": "5pS56YCg5oyH56S644OV44Kh44Kk44OrICgzKQ0KDQrilqDnm67nmoQ6IOaVteapn+OBjOW8vuOCkuaJk+OBpA0KDQrilqDkvZzmpa0xOiDmlbXmqZ/jga7lvL7jgpLkv53lrZjjgZnjgovlpInmlbDjgpLkvZzmiJDjgZnjgosNCmNvbnN0IGVuZW15IOWkieaVsOOBruWumue+qeOBruS4i+OBq+OAgQ0K5Lul5LiL44KS6L+95Yqg44GZ44KL44CCDQogICAgbGV0IGVuZW15X2J1bGxldHMgPSBbXTsNCuijnOi2szog5aSJ5pWw44Gu5a6a576p44Gu5LiL44Go44Gv44CBZW5lbXk9ey4uLn0g44Gu57WC44KP44KK44Gu5ous5bynIH0g44Gu5LiL44Gu6KGM44Gu44GT44Go44Gn44GZ44CCDQoNCuKWoOS9nOalrTI6IOaVteapn+OBjOW8vuOCkuaJk+OBpA0KZnVuY3Rpb24gdXBkYXRlKCkg44Gu5Lit77yI44Gk44G+44KK44CBeyDjgYvjgokgfSDjgb7jgafjga7plpPvvInjgavjgIENCuS7peS4i+OCkui/veWKoOOBmeOCi+OAgg0KICAgICAgaWYgKGVuZW15LmFsaXZlICYmIE1hdGgucmFuZG9tKCkgPCAwLjEpIHsNCiAgICAgICAgZW5lbXlfYnVsbGV0cy5wdXNoKHsgeDogZW5lbXkueCArIGVuZW15LncgLyAyLCB5OiBlbmVteS55LCB3OiA0LCBoOiA0IH0pOw0KICAgICAgfQ0KICAgICAgZW5lbXlfYnVsbGV0cy5mb3JFYWNoKGIgPT4gew0KICAgICAgICBiLnkgKz0gMjsNCiAgICAgIH0pOw0KICAgICAgZW5lbXlfYnVsbGV0cyA9IGVuZW15X2J1bGxldHMuZmlsdGVyKGIgPT4gYi55IDwgY2FudmFzLmhlaWdodCk7DQroo5zotrM6IOOBk+OBruaZgueCueOBp+W8vuOBr+aJk+OBn+OCjOOBpuOBhOOBvuOBmeOBjOaPj+eUu+OBleOCjOOBpuOBhOOBquOBhOOBruOBp+eUu+mdouS4iuOBp+OBr+imi+OBiOOBvuOBm+OCk+OAgg0KDQrilqDkvZzmpa0zOiDmkoPjgZ/jgozjgZ/lvL7jgpLmj4/nlLvjgZnjgosNCmZ1bmN0aW9uIGRyYXcoKSDjga7kuK3jga7jgIHmnIDlvozjgavjgIENCuS7peS4i+OCkui/veWKoOOBmeOCi+OAgg0KICAgICAgZW5lbXlfYnVsbGV0cy5mb3JFYWNoKGIgPT4gew0KICAgICAgICBjdHguZmlsbFN0eWxlID0gInBpbmsiOw0KICAgICAgICBjdHguZmlsbFJlY3QoYi54LCBiLnksIGIudywgYi5oKTsNCiAgICAgIH0pDQoNCuKWoOeiuuiqjQ0K5pW144GM5by+44KS44CB6Zuo44Gu44KI44GG44Gr6ZmN44KJ44GZ44GT44Go44KS56K66KqN44GZ44KL44CCDQoNCuKWoOW8vuOBrumHj+OCkuWil+a4m+OBl+OBn+OBhOWgtOWQiA0K5L2c5qWtMuOBp+i/veWKoOOBl+OBnyBNYXRoLnJhbmRvbSgpIDwgMC4xIOOBr+OAgeODqeODs+ODgOODoOOBquaVsO+8iDDjgJwx77yJ44GMMC4x44KI44KK5bCP44GV44GE44Go44GN44Gr5pW144GM5by+44KS5pKD44Gk44Go44GE44GG5oSP5ZGz44Gn44GZ44CC44GT44GuIDAuMSDjga7mlbDlrZfjgpLlpKfjgY3jgY/jgZnjgozjgbDlvL7jgpLjgojjgY/mkoPjgaHjgIHlsI/jgZXjgY/jgZnjgozjgbDjgYLjgb7jgormkoPjgZ/jgarjgY/jgarjgorjgb7jgZnjgIINCg0K",
+		// 		"js_08_4_p_destroy.txt": "5pS56YCg5oyH56S644OV44Kh44Kk44OrICg0KQ0KDQrilqDnm67nmoQ6IOiHquapn+OBjOW8vuOBq+OBguOBn+OCiw0KDQrilqDkvZzmpa0xOiDlvZPjgZ/jgorliKTlrprplqLmlbDjgpLkvZzmiJDjgZnjgosNCmZ1bmN0aW9uIHVwZGF0ZSgpIOmWouaVsOOBruS4iuOBq+OAgQ0K5Lul5LiL44KS6L+95Yqg44GZ44KL44CCDQogICAgZnVuY3Rpb24gaXNIaXQocjEsIHIyKSB7DQogICAgICByZXR1cm4gISgNCiAgICAgICAgcjEueCArIHIxLncgPCByMi54IHx8DQogICAgICAgIHIxLnggPiByMi54ICsgcjIudyB8fA0KICAgICAgICByMS55ICsgcjEuaCA8IHIyLnkgfHwNCiAgICAgICAgcjEueSA+IHIyLnkgKyByMi5oDQogICAgICApOw0KICAgIH0NCg0KDQrilqDkvZzmpa0yOiDlvL7jgajoh6rmqZ/jgajjga7lvZPjgZ/jgorliKTlrprjgpLlrp/ooYzjgZnjgosNCmZ1bmN0aW9uIHVwZGF0ZSgpIOOBruS4reOBruOAgeacgOW+jOOBq+OAgQ0K5Lul5LiL44KS6L+95Yqg44GZ44KL44CCDQogICAgICBpZiAocGxheWVyLmFsaXZlKSB7DQogICAgICAgIGZvciAobGV0IGkgPSAwOyBpIDwgZW5lbXlfYnVsbGV0cy5sZW5ndGg7IGkgKz0gMSkgew0KICAgICAgICAgIGlmIChpc0hpdChwbGF5ZXIsIGVuZW15X2J1bGxldHNbaV0pKSB7DQogICAgICAgICAgICBwbGF5ZXIuYWxpdmUgPSBmYWxzZTsNCiAgICAgICAgICAgIGJyZWFrOw0KICAgICAgICAgIH0NCiAgICAgICAgfQ0KICAgICAgfSBlbHNlIGlmIChrZXlzWyJLZXlSIl0pIHsNCiAgICAgICAgcGxheWVyLmFsaXZlID0gdHJ1ZTsNCiAgICAgIH0NCg0K4pag56K66KqNDQroh6rmqZ/jgYzmlbXjga7lvL7jgavjgYLjgZ/jgovjgajmtojjgYjjgovjgILjgb7jgZ8gciDjgq3jg7zjgpLmirzjgZnjgajlvqnmtLvjgZnjgovjgZPjgajjgpLnorroqo3jgZnjgovjgIINCg0K4pag44GC44Gf44KK5Yik5a6a44Gu6Kmz57Sw44Gr44Gk44GE44GmDQoy44Gk44Gu5Zub6KeS5b2i44GM6YeN44Gq44KJ44Gq44GE44Gu44Gv44CB5qyh44GuNOODkeOCv+ODvOODs+S7peWkluOBruWgtOWQiOOBp+OBguOCi+OAguOBk+OBruOAjOS7peWkluOAjeOBr+OAgTTjgaTjga7mnaHku7bjgpLmi6zlvKfjgafmi6zjgorjgIHjgZ3jgozlhajkvZPjga7liY3jgasgISDjgpLku5jjgZHjgovjgZPjgajjgafjgIHjg5fjg63jgrDjg6njg6DjgajjgZfjgabooajnj77jgZXjgozjgabjgYTjgovjgIINCnIxLnggKyByMS53IDwgcjIueCB8fCAgICAvLyByMSDjgYwgcjIg44Gu5bem44Gr44GC44KLDQpyMS54ID4gcjIueCArIHIyLncgfHwgICAgLy8gcjEg44GMIHIyIOOBruWPs+OBq+OBguOCiw0KcjEueSArIHIxLmggPCByMi55IHx8ICAgIC8vIHIxIOOBjCByMiDjga7kuIrjgavjgYLjgosNCnIxLnkgPiByMi55ICsgcjIuaCAgICAgICAvLyByMSDjgYwgcjIg44Gu5LiL44Gr44GC44KLDQo=",
+		// 		"js_08_5_p_bullets.txt": "5pS56YCg5oyH56S644OV44Kh44Kk44OrICg1KQ0KLS0tLS0g5Lu75oSP6Kqy6aGM44Gn44GZIC0tLS0tLS0tLQ0KDQrilqDnm67nmoQ6IOiHquapn+OBjOW8vuOCkuaSg+OBpA0KDQrilqDkvZzmpa0xOiDoh6rmqZ/jga7mkoPjgaTlvL7jgpLkv53lrZjjgZnjgovlpInmlbDjgpLkvZzmiJDjgZnjgosNCuaUuemAoDPjgafkvZzmiJDjgZfjgZ8gbGV0IGVuZW15X2J1bGxldHMgPSBbXTsg44Gu5LiL44Gr44CBDQrku6XkuIvjgpLov73liqDjgZnjgovjgIINCiAgICBsZXQgYnVsbGV0cyA9IFtdOw0KDQrilqDkvZzmpa0yOiDoh6rmqZ/jgYzlvL7jgpLmkoPjgaQNCmZ1bmN0aW9uIHVwZGF0ZSgpIOOBruS4reOBruOAgeacgOW+jOOBq+OAgQ0K5Lul5LiL44KS6L+95Yqg44GZ44KL44CCDQogICAgICBpZiAocGxheWVyLmFsaXZlICYmIGtleXNbIlNwYWNlIl0pIHsNCiAgICAgICAgYnVsbGV0cy5wdXNoKHsgeDogcGxheWVyLnggKyBwbGF5ZXIudyAvIDIsIHk6IHBsYXllci55LCB3OiA0LCBoOiA0IH0pDQogICAgICB9DQogICAgICBidWxsZXRzLmZvckVhY2goYiA9PiB7DQogICAgICAgIGIueSAtPSAyOw0KICAgICAgfSk7DQogICAgICBidWxsZXRzID0gYnVsbGV0cy5maWx0ZXIoYiA9PiBiLnkgPiAwKTsNCg0K4pag5L2c5qWtMzog6Ieq5qmf44Gu5by+44KS5o+P55S744GZ44KLDQpmdW5jdGlvbiBkcmF3KCkg44Gu5Lit44Gu44CB5pyA5b6M44Gr44CBDQrku6XkuIvjgpLov73liqDjgZnjgovjgIINCiAgICAgIGJ1bGxldHMuZm9yRWFjaChiID0+IHsNCiAgICAgICAgY3R4LmZpbGxTdHlsZSA9ICJ3aGl0ZSI7DQogICAgICAgIGN0eC5maWxsUmVjdChiLngsIGIueSwgYi53LCBiLmgpOw0KICAgICAgfSkNCg0K4pag56K66KqNDQrjgrnjg5rjg7zjgrnjgq3jg7zjgafoh6rmqZ/jgYzlvL7jgpLmkoPjgaTjgZPjgajjgpLnorroqo3jgZnjgovjgIINCg==",
+		// 		"js_08_6_e_destroy.txt": "5pS56YCg5oyH56S644OV44Kh44Kk44OrICg2KQ0KLS0tLS0g5Lu75oSP6Kqy6aGM44Gn44GZIC0tLS0tLS0tLQ0KDQrilqDnm67nmoQ6IOaVteapn+OBjOW8vuOBq+OBguOBn+OCi+OBqOa2iOOBiOOCiw0KDQrilqDkvZzmpa0xOiDoh6rmqZ/jga7lvL7jgajmlbXmqZ/jga7lvZPjgZ/jgorliKTlrprjgpLlrp/ooYzjgZnjgosNCmZ1bmN0aW9uIHVwZGF0ZSgp44Gu5Lit44Gu44CB5pyA5b6M44Gr44CBDQrku6XkuIvjgpLov73liqDjgZnjgovjgIINCiAgICAgIGlmIChlbmVteS5hbGl2ZSkgew0KICAgICAgICBmb3IgKGxldCBpID0gMDsgaSA8IGJ1bGxldHMubGVuZ3RoOyBpICs9IDEpIHsNCiAgICAgICAgICBpZiAoaXNIaXQoZW5lbXksIGJ1bGxldHNbaV0pKSB7DQogICAgICAgICAgICBlbmVteS5hbGl2ZSA9IGZhbHNlOw0KICAgICAgICAgICAgYnJlYWs7DQogICAgICAgICAgfQ0KICAgICAgICB9DQogICAgICB9IGVsc2UgaWYgKGtleXNbIktleVIiXSkgew0KICAgICAgICBlbmVteS5hbGl2ZSA9IHRydWU7DQogICAgICB9DQoNCuKWoOeiuuiqjQ0K5pW15qmf44GM5by+44Gr44GC44Gf44KL44Go5raI44GI44KL44CC44G+44GfIHIg44Kt44O844Gn5b6p5rS744GZ44KL44GT44Go44KS56K66KqN44GZ44KL44CCDQo=",
+		// 		"js_08_7_cooling.txt": "5pS56YCg5oyH56S644OV44Kh44Kk44OrICg3KQ0KLS0tLS0g5Lu75oSP6Kqy6aGM44Gn44GZIC0tLS0tLS0tLQ0K44G+44Gf44GT44KM44G+44Gn44Go6YGV44Gj44Gm44CB5YW35L2T55qE44Gq5L2c5qWt5oyH56S644Gn44Gv44Gq44GP44CB5paH56ug44Gn5L2V44KS44GZ44KM44Gw6Imv44GE44Gu44GL44KS6Kqs5piO44GX44Gm44G+44GZ44CC44OX44Ot44Kw44Op44Og44Gu5YaF5a6544KS55CG6Kej44GX44Gm44CB5L2c5qWt44GX44Gm44G/44Gm44GP44Gg44GV44GE44CCDQoNCuKWoOebrueahDog6Ieq5qmf44GM5by+44KS6YCj57aa44Gn5pKD44Gm44Gq44GE44KI44GG44Gr44CB5pKD44Gj44Gf5b6M44Gr5bCR44GX5b6F44Gk5pmC6ZaT77yI44Kv44O844Or44K/44Kk44Og77yJ44KS5YWl44KM44KL5Yem55CG44KS5L2c44KLDQoNCuKWoOS9nOalrQ0K5by+44KS5pKD44Gj44Gf44GC44Go44CB44G+44Gg5by+44GM6Ieq5qmf44Gu6L+R44GP44Gr44GC44KL6ZaT44Gv5qyh44Gu5by+44KS5pKD44Gm44Gq44GE44KI44GG44Gr44GX44Gm44CB44Kv44O844Or44K/44Kk44Og44KS5a6f54++44GX44G+44GZ44CCDQrjgZ/jgajjgYjjgbDjgIHmrKHjga7jgrPjg7zjg4njga/oh6rmqZ/jga7ov5HjgY/vvIjkuIrmlrnlkJHjgas4MOODlOOCr+OCu+ODq+S7peWGhe+8ieOBq+OBguOCi+W8vuOBruaVsOOCkuaVsOOBiOOBpuOAgeOBneOCjOOBjDDjgarjgonmkoPjgabjgovjgIHjgajjgYTjgYbliKTlrprjgpLjgZfjgb7jgZnjgIINCmJ1bGxldHMuZmlsdGVyKGIgPT4gYi55ID4gcGxheWVyLnkgLSA4MCkubGVuZ3RoID09PSAwDQrjgZPjga7jgrPjg7zjg4njgpLlvL7jgpLmkoPjgaTlh6bnkIbjga7liY3jgavov73liqDjgZfjgabjgIHjgZ3jga7mnaHku7bjgpLmuoDjgZ/jgZnjgajjgY3jgaDjgZHlvL7jgpLmkoPjgaTjgojjgYbjgavjgZnjgozjgbBPS+OBp+OBmeOAgg0K5by+44KS5pKD44Gk5aC05omA44Gu44Kz44O844OJ44KS44KI44GP6KaL44Gm44CB44Gd44GT44Gr44GT44Gu5p2h5Lu244KS57WE44G/6L6844KT44Gn44G/44G+44GX44KH44GG44CCDQoNCuKWoOeiuuiqjQ0K6YCj5bCE44GM44Gn44GN44Gq44GE44KI44GG44GE44Gq44Gj44Gm44GE44KL44GT44Go44KS56K66KqN44GZ44KL44CCDQoNCg0K4pag44GT44Gu5pS56YCg6KaB5rGC44KC57WC44KP44Gj44Gf5Lq644GvLi4uLg0K5aW944GN44Gq44KI44GG44Gr5pS56YCg44GX44Gm44G/44Gm44GP44Gg44GV44GE44CC5L6L44GI44Gw44CB5qyh44Gu44KI44GG44Gq5pS56YCg44GM44Gn44GN44KL44Go5oCd44GE44G+44GZ44CCDQoNCigxKSDpn7PjgpLps7TjgonjgZkNCmh0bWzjga5oZWFk44K/44Kw44Gu5Lit44Gr44CBPHNjcmlwdCBzcmM9ImxpYnMvc291bmQuanMiPjwvc2NyaXB0PiDjgpLov73liqDjgZnjgovjgILjgZPjgozjga/jgIHjgZPjga7jg4Tjg7zjg6vjgafkvb/nlKjjgZfjgabjgYTjgovpn7PjgpLps7TjgonjgZnjg5fjg63jgrDjg6njg6DjgafjgZnjgIINCjxzY3JpcHQ+44Gu5YWI6aCtIChjb25zdCBjYW52YXMgPSAuLi4g44Gu5LiKKeOBp+OAgXNvdW5kLmluaXQoKSDjgpLlrp/ooYzjgZnjgovjgIINCumfs+OCkumztOOCieOBl+OBn+OBhOWAi+aJgOOBq+OAgXNvdW5kLnBsYXkoKSDjgpLov73liqDjgZnjgovjgIINCumfs+OBrueorumhnuOBr+OAgXBsYXnjga7lvJXmlbDjgaflpInmm7TjgafjgY3jgb7jgZnjgILkvovjgYjjgbDjgIFwbGF5KCJwZWVuIinjgajjgZnjgovjgajjgIHjg5Tjg7zjg7PjgajjgYTjgYbpn7PjgYzlh7rjgb7jgZnjgIINCumfs+OBrueorumhnuOBr+asoeOBp+OBmeOAgg0KImRlZmF1bHQiIOOBvuOBn+OBr+W8leaVsOOBruecgeeVpSDjgr/jgqTjg5fjg6njgqTjgr/jg7wNCiJwZWVuIiDjg5Tjg7zjg7MNCiJwdW5jaCIg44OR44Oz44OBDQoia29rIiDjgrPjg4MNCiJoeXUiIOODkuODpeODgw0KInNsYXNoIiDmlqzjgosNCiJ0ZW1wbGVfYmVsbCIg6ZCYDQoidGFpa28iIOWkqum8kw0KImhpdCLmiZPmkoMNCiJ3b29kZW5fY2xhcHBlcnMiIOaLjeWtkOacqA0KImJ5X2tleSIg44Kt44O844Gr5b+c44GY44Gm5aSJ5YyW44GZ44KLDQoNCigyKSDoh6rmqZ/jgYznlLvpnaLjga7lpJbjgavlh7rjgarjgYQNCnBsYXllci5444Gu5YCk44KS5aSJ5pu044GX44Gm44GE44KL566H5omA44Gr44CBaWbmlofjga7mnaHku7bjgpLov73liqDjgZnjgovjgILnlLvpnaLjga7lpJbjgavlh7rjgosv5Ye644Gq44GE44Gr44Gk44GE44Gm44Gv44CB5pW15qmf44Gu5YuV44GN44KS5Y+C6ICD44Gr44GZ44KL44CCDQoNCigzKSDlvL7jgasz5Zue5b2T44Gf44KL44Go6Ieq5qmf44GM5aOK44KM44KLDQpwbGF5ZXIuYWxpdmXjga/nj77lnKjjga8gdHVyZSAvIGZhbHNlIOOBrjLlgKTjgafjgYLjgovjgYzjgIHjgZPjgozjgpLmlbDlgKTljJbjgZnjgovjgILmnIDliJ3jgasgYWxpdmUg44GrIDMg44KS5Luj5YWl44GX44CB5pW144Gu5by+44GM5b2T44Gf44KL44Gf44Gz44GrMeOBpOa4m+OCieOBmeOAguOBneOBl+OBpiAwIOOBp+iHquapn+OBruaPj+eUu+OCkuOChOOCgeOCi+OAgg0K44G+44Gf5b2T44Gf44Gj44Gf5pW144Gu5by+44KS5raI44GV44Gq44GE44Go44CB5ZCM44GY5by+44GM5L2V5bqm44KC6Ieq5qmf44Gr44GC44Gf44KL44Gf44KB44CBc3BsaWNl44Oh44K944OD44OJ44Gq44Gp44KS5L2/55So44GX44Gm5b2T44Gf44Gj44Gf5by+44KS5YmK6Zmk44GZ44KL5b+F6KaB44GM44GC44KL44CCDQoNCig0KSDoh6rmqZ/jga7oibLjgpLlpInjgYjjgosNCnBsYXllci5hbGl2ZeOCkuaVsOWApOWMluOBl+OBn+OCieOAgeOBneOBruiJsuOBq+OCiOOBo+OBpuiHquapn+OBruiJsuOBjOWkieOCj+OCi+OCiOOBhuOBq+OBmeOCi+OAgg0KDQooNSkg6Ieq5qmf44KS5LiK5LiL44Gr44KC56e75YuV44GZ44KLDQpwbGF5ZXIueeOCkuOCreODvOOBq+OCiOOBo+OBpuWApOOCkuWkieabtOOBp+OBjeOCi+OCiOOBhuOBq+OBmeOCi+OAguOBvuOBn+OAgeaVteapn+OBq+inpuOCjOOBn+OCieS9leOBi+OBmeOCi+WHpueQhuOCkuWFpeOCjOOBpuOCguiJr+OBhOOAguaVteapn+OBq+inpuOCjOOCi+OBr+OAgeOBmeOBp+OBq+OBk+OCjOOBvuOBp+OBruaUuemAoOOBp+i/veWKoOOBl+OBn+W9k+OBn+OCiuWIpOWumuOBrumWouaVsGlzSGl044KS5L2/44Gj44Gm5a6f54++44Gn44GN44KL44CCDQoNCig2KSDmlbXmqZ/jgpLopIfmlbDjgavjgZnjgosNCmVuZW1pZXPjga7jgojjgYbjgarjg6rjgrnjg4jjga7lpInmlbDjgpLkvZzmiJDjgZfjgIFlbmVteeOBp+S/neWtmOOBleOCjOOBhOOCi+aDheWgseOCkuikh+aVsOi/veWKoOOBmeOCi+OAguOBneOBrumam+OBq+OAgXgseeOBruS9jee9ruOBr+WwkeOBl+OBmuOBpOOBmuOCieOBmeOAgg0K5pW15qmf44Gu56e75YuV44CB5o+P55S744KS44Oq44K544OI44KS44Or44O844OX44GZ44KL5Yem55CG44Gr5aSJ5pu044GZ44KL44CCDQo="
+		// 	},
+		// };
+
+		// html parameter
+		const html_params = [...new URLSearchParams(location.search).entries()].reduce((obj, e) => ({ ...obj, [e[0]]: e[1] }), {});
+
+		// scriptタグで読み込むscriptファイルの動的読み込み
+		const load_script = function (fname) {
+			return new Promise((resolve, reject) => {
+				const sc = document.createElement("script");
+				sc.type = "text/javascript";
+				sc.src = fname;
+				sc.onload = () => resolve();
+				sc.onerror = (e) => reject(e);
+				const s = document.getElementsByTagName("script")[0];
+				s.parentNode.insertBefore(sc, s);
+			});
+		};
+
+		// sound.jsの初期化
+		sound.init();
+
+		// python (python変数をundefinedにすると、このmergelyはデフォルトのhtmlモードになる)
+		const python = html_params.python === undefined ?
+			undefined :
+			(await import(`./module_python${html_params.python}.mjs`)).python;
+		if (python !== undefined) {
+			const editor_output_elem = document.getElementById("editor_output");
+			editor_output_elem.setAttribute('sandbox', 'allow-scripts allow-same-origin');
+			python.init({
+				button_panel_elem: document.getElementById("footer_button_panel_module"),
+				button_classes: { button: "button", icon: "icon-button" },
+				output_elem: editor_output_elem.contentDocument.body,
+				kadais, kadai_quests,
+				get_kadai_status: () => ({
+					kadai_filename: document.getElementById("kadai_filename").selectedOptions[0].text,
+					code: mergely.cm("rhs").getValue(),
+				}),
+				set_kadai_status: ({ kadai_filename, status }) => {
+					document.getElementById(`kadai_status_${kadai_filename}`).classList.add(status);
+				},
+				get_mergely: () => mergely,
+			});
+			const style_elem = document.querySelector("style");
+			["final_preview_button", "submit_to_screen"].forEach(e => {
+				style_elem.appendChild(document.createTextNode(`
+		  #${e} { display: none !important; }
+		`))
+			});
+		} else {
+			document.getElementById("kadai_status_panel").style.display = "none";
+		}
+
+		// html server
+		const html_server_client = undefined;
+		// import { html_server_client } from "./libs/html_server_client.mjs";
+		if (html_server_client !== undefined && html_server_client.is_avaiable()) {
+			console.log("html_server_client avaiable");
+
+			await load_script("https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js");
+			await html_server_client.init();
+			document.getElementById("footer_button_panel_module").appendChild([
+				document.createElement("button"),
+				e => e.textContent = "📲",
+				e => e.classList.add("icon-button"),
+				e => e.addEventListener("click", async e => {
+					const code = mergely.cm("rhs").getValue().trim();
+					if (code.length === 0) {
+						alert("プログラムを書いてから、QRコードを表示してみてください。");
+						return;
+					}
+					const { uuid } = await html_server_client.create_html(code);
+
+					const element = document.createElement("canvas");
+					// await Swal.fire("それぞれの課題は、<span style='color:blue'>2つのファイル</span>で構成されています。");
+					const qr = new QRious({
+						element,
+						value: `https://www.pecode.com/html_server?uuid=${uuid}`,
+					});
+					await Swal.fire({
+						title: "smartphone",
+						html: element,
+						showConfirmButton: true,
+					});
+					element.remove();
+				})
+			].a2e());
+		}
+
+		// mergely公式のパラメータ
+		const mergely_params = {
+			autoupdate: true,
+			wrap_lines: true,
+			ignorews: false,
+			ignorecase: false,
+			ignoreaccents: false,
+		};
+		// mergelyのこのプログラム独自のパラメータ
+		const mergely_user_params = {
+			background: {
+				undefined: "#ffffff",
+				"py": "#ffffff",
+				"html": "#ffffff",
+				"txt": "#f0f8ff",
+			},
+			autoupdate: undefined,
+		};
+		const update_mergely_user_setting = (filename) => {
+			const file_ext = filename.match(/\.([^.]+)$/)?.[1];
+			mergely.cm("lhs").getWrapperElement().style.background =
+				mergely_user_params.background[file_ext];
+
+			if (file_ext === "txt" && autoupdate_elem.checked) {
+				setTimeout(() => {
+					autoupdate_elem.checked = false;
+					update_autoupdate();
+				}, 500);
+			} else if ((file_ext === "py" || file_ext === "html") && mergely_user_params.autoupdate !== autoupdate_elem.checked) {
+				setTimeout(() => {
+					autoupdate_elem.checked = mergely_user_params.autoupdate;
+					update_autoupdate();
+				}, 500);
+			}
+		}
+
+
+		// create_encoded_html
+		if (html_params.create_encoded_html) {
+			document.getElementById("create_encoded_html_panel").style.display = "block";
+			const plane_html_file = document.getElementById("plane_html_file");
+			plane_html_file.addEventListener("change", async e => {
+				if (plane_html_file.files[0] === undefined) {
+					return;
+				}
+				const encoded_html_elem = document.getElementById("encoded_html");
+				if (python !== undefined) {
+					python.create_encoded_code(plane_html_file.files, encoded_html_elem)
+				} else {
+					const ps = Array.from(plane_html_file.files).sort((f0, f1) => f0.name.localeCompare(f1.name)).map(file => {
+						return new Promise((resolve, reject) => {
+							const reader = new FileReader();
+							reader.onload = e => {
+								const encoded = btoa(unescape(encodeURIComponent(e.target.result)));
+								resolve(`"${file.name}":"${encoded}"`);
+							}
+							reader.onerror = reject;
+							reader.readAsText(file);
+						})
+					})
+
+					const results = await Promise.all(ps);
+					encoded_html_elem.value = results.join(",\n");
+				}
+			})
+			document.getElementById("create_encoded_html").addEventListener("click", e => {
+				document.getElementById("plane_html_file").click();
+			});
+			document.getElementById("return_from_create_encoded_html_to_normal").addEventListener("click", e => {
+				const p = { ...html_params };
+				delete p.create_encoded_html;
+				const ps = new URLSearchParams(p).toString();
+				location.href = ps.length === 0 ? location.pathname : location.pathname + "?" + ps;
+			});
+		}
+
+		// Mergelyの生成
+		const mergely = new Mergely('#mergely', {
+			license: "lgpl-separate-notice",
+			lhs: '',
+			lhs_cmsettings: {
+				readOnly: true,
+				tabSize: 2,
+				indentUnit: 2,
+				indentWithTabs: false,
+				smartIndent: false,
+				tabMode: "spaces",
+				mode: python === undefined ? "htmlmixed" : "python",
+			},
+			rhs: '',
+			rhs_cmsettings: {
+				tabSize: 2,
+				indentUnit: 2,
+				indentWithTabs: false,
+				smartIndent: false,
+				tabMode: "spaces",
+				extraKeys: {
+					Tab: function (cm) {
+						const spaces = Array(cm.getOption("indentUnit") + 1).join(" ");
+						cm.replaceSelection(spaces);
+					}
+				},
+				mode: python === undefined ? "htmlmixed" : "python",
+			},
+			...mergely_params,
+		});
+		// 左右スクロールの同期解除
+		mergely.cm("lhs").scrollTo = () => { };
+		mergely.cm("rhs").scrollTo = () => { };
+
+		// 左側のコードのコピー禁止
+		const nocopy_dom = document.getElementsByClassName("CodeMirror")[0];
+		nocopy_dom.addEventListener("copy", e => {
+			console.log("copy", e);
+			const kadai_filename = document.getElementById("kadai_quest").selectedOptions[0].text;
+			if (kadai_filename.endsWith(".txt") === false) {
+				e.preventDefault();
+			}
+			return false;
+		});
+
+		// diffの変更なし個所のフォント色
+		Array.from(document.getElementsByClassName("CodeMirror-code")).forEach(e => {
+			e.style.color = "black";
+		});
+
+		// 右側のエディタの変更箇所のエフェクト変更（デフォルトは青文字）
+		const css_sheet = Array.from(document.styleSheets).filter(e => e.href?.includes("mergely.css"))[0];
+		const rule = Array.from(css_sheet.cssRules).filter(rule => rule.selectorText === '.mergely-editor .mergely.ch.ina.rhs')[0];
+		rule.style.color = "#ff0000";
+		rule.style.textDecoration = 'line-through';
+
+		// エディタの内容更新
+		// editor update timer
+		const timer = (function (cb, msec) {
+			let timer_id = undefined;
+			return {
+				set: function () {
+					clearTimeout(timer_id);
+					timer_id = setTimeout(cb, msec);
+				},
+			}
+		})(() => {
+			const txt = mergely.cm("rhs").getValue();
+			const kadai_filename = document.getElementById("kadai_filename").selectedOptions[0].text;
+			if (kadai_filename.length > 0) {
+				localStorage.setItem(kadai_filename, txt);
+			}
+
+			if (python === undefined) {
+				document.getElementById("editor_output").srcdoc = txt;
+			} else {
+				python.update(txt);
+			}
+
+			if (/localStorage.clear/.test(txt)) {
+				if (confirm("保存されたコードをすべて削除します。よろしいですか？")) {
+					localStorage.clear();
+				}
+			}
+			if (/create_encoded_html/.test(txt)) {
+				if (confirm("create encoded htmlモードに遷移します。よろしいですか？")) {
+					const p = new URLSearchParams({ ...html_params, "create_encoded_html": 1 });
+					location.href = `${location.pathname}?${p.toString()}`;
+				}
+			}
+
+			if (/(?:ねこ|猫|ネコ)おやすみ/.test(txt)) {
+				cursor_icon?.set_visibility("visible");
+				cursor_icon?.set_state("sleeping");
+			} else if (/(?:ねこ|猫|ネコ)おいで/.test(txt)) {
+				cursor_icon?.set_visibility("visible");
+				cursor_icon?.set_pos(mergely.cm("rhs"));
+				cursor_icon?.set_state("walking");
+			} else {
+				cursor_icon?.set_pos();
+				cursor_icon?.set_visibility("hidden");
+			}
+		}, 1000);
+		mergely.cm("rhs").on("change", () => {
+			timer.set();
+		});
+
+		const key_sounds_elem = document.getElementById("key_sounds");
+		mergely.cm("rhs").on("keydown", (instance, e) => {
+			// console.log(e);
+
+			const specialKeysToExclude = [
+				'F1', 'F2', 'F3', 'F4', 'F5', 'F6', 'F7', 'F8', 'F9', 'F10', 'F11', 'F12',
+				'Alt', 'Control', 'Shift', 'Meta', // これらは修飾キー単独の押下
+				'CapsLock', 'Tab', 'Escape',
+				'PageUp', 'PageDown', 'End', 'Home', 'Insert',
+				'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight' // ★矢印キーを追加★
+				// 'Enter', // Enterキーも除外したい場合は追加
+				// 'Backspace', 'Delete' // 削除系キーも除外したい場合は追加
+			];
+			// 1. 修飾キー単独での押下をチェック (Ctrl, Shift, Alt, Meta)
+			// これらのキーが単独で押された場合は、通常文字入力には繋がりません
+			if (e.key === 'Control' || e.key === 'Shift' || e.key === 'Alt' || e.key === 'Meta') {
+				return; // 単独の修飾キーは無視
+			}
+			// 2. 特殊キーのリストに含まれるキーを除外
+			if (specialKeysToExclude.includes(e.key)) {
+				// console.log(`除外された特殊キーが押されました: ${e.key}`);
+				return; // リスト内の特殊キーは無視
+			}
+			// 3. 修飾キー（Ctrl, Shift, Alt, Meta）が押されている場合は、文字キーであっても無視する
+			// 例: Ctrl+A (全選択) は文字入力ではない
+			// ただし、Alt+数字（特殊文字入力など）やShift+文字（大文字入力）は除外しない場合もあるので、
+			// 要件に応じて調整してください。ここではシンプルに「単独の文字入力」を想定します。
+			if (e.ctrlKey || e.altKey || e.metaKey) {
+				// Shiftキーは単独の文字キーと組み合わせて大文字入力になるので、ここでは除外しない
+				// (e.g., Shift + 'a' -> 'A')
+				return;
+			}
+
+			// タイプ音を鳴らす。
+			if (key_sounds_elem.value.length !== 0) {
+				sound.play({ type: key_sounds_elem.value, key: e.key });
+			}
+		});
+
+		// カーソルを追いかけるアイコン
+		import { ImageIcon } from "./libs/ImageIcon.mjs";
+		const ipr = document.querySelectorAll(".CodeMirror-wrap")[1].getBoundingClientRect();
+		const cursor_icon = ImageIcon.create({ pos: { left: ipr.right - 40, top: ipr.top + 40 }, visibility: "hidden" });
+		// const cursor_icon = undefined;
+
+		// diffの自動更新機能の有効/無効化
+		const autoupdate_elem = document.getElementById("autoupdate");
+		autoupdate_elem.checked = mergely_params.autoupdate;
+		mergely_user_params.autoupdate = autoupdate_elem.checked;
+		const update_autoupdate = () => {
+			mergely.options({ autoupdate: autoupdate_elem.checked });
+			mergely.lhs(mergely.get("lhs"));
+			mergely.rhs(mergely.get("rhs"));
+		}
+		autoupdate_elem.addEventListener("change", e => {
+			mergely_user_params.autoupdate = autoupdate_elem.checked;
+			update_autoupdate();
+		});
+
+		// プレビューボタンの表示
+		const set_preview_button_visible = (function () {
+			let final_preview_button_elem = undefined;
+			return (visible) => {
+				if (visible === false) {
+					final_preview_button_elem && (final_preview_button_elem.style.display = "none");
+					return;
+				}
+				if (final_preview_button_elem !== undefined) {
+					final_preview_button_elem.style.display = "block";
+					return;
+				}
+				const parent = document.querySelectorAll(".CodeMirror-wrap")[0];
+				final_preview_button_elem = parent.appendChild([
+					document.createElement("button"),
+					e => e.id = "final_preview_button",
+					e => e.classList.add("button"),
+					e => e.textContent = "完成プレビュー",
+					e => e.style.position = "absolute",
+					e => e.style.top = "10px",
+					e => e.style.right = "20px",
+					e => e.addEventListener("click", async e => {
+						if (mergely.cm("lhs").getValue() === "") {
+							alert("課題を選択してください。")
+							return;
+						}
+						await preview(mergely.cm("lhs").getValue())
+					}),
+				].a2e());
+			};
+		})();
+
+		// 課題HTMLの文字の読み込み
+		const kadai_filename_elem = document.getElementById("kadai_filename");
+		Object.entries(kadais).forEach(([filename, encoded_html], i) => {
+			kadai_filename_elem.appendChild([
+				document.createElement("option"),
+				e => e.value = encoded_html,
+				e => e.textContent = filename,
+			].a2e());
+			document.getElementById("kadai_status_panel").appendChild([
+				document.createElement("span"),
+				e => e.textContent = (i + 1),
+				e => e.id = `kadai_status_${filename}`,
+			].a2e());
+		});
+
+		// 課題ファイルが選択されたら
+		kadai_filename_elem.addEventListener("change", e => {
+			// クエストのselect要素を取得
+			const kadai_quest_elem = document.querySelector("#kadai_quest");
+			// クエストのselectを空にする
+			kadai_quest_elem.innerHTML = "<option></option>";
+			// 課題ファイルの選択が解除されたとき
+			if (kadai_filename_elem.value.length === 0) {
+				mergely.lhs("");
+				update_mergely_user_setting(kadai_filename_elem.options[kadai_filename_elem.selectedIndex].textContent);
+				document.getElementById("download_filename").placeholder = "";
+				set_preview_button_visible(false);
+			} else {
+				// プレビューボタンの描画
+				set_preview_button_visible(true);
+				// プログラムのデコード
+				const decoded = add_indent_to_emply_line(decodeURIComponent(escape(atob(kadai_filename_elem.value))));
+				// エディタ（左側）にコードの貼り付け
+				mergely.lhs(decoded);
+				// 課題ファイル名を取得
+				const kadai_filename = kadai_filename_elem.options[kadai_filename_elem.selectedIndex].textContent;
+				// 課題ファイル名(引数のもの)を与えてmergelyのコピー禁止、背景色を変更
+				update_mergely_user_setting(kadai_filename);
+				// ダウンロードファイル名のplacefolderを更新
+				document.getElementById("download_filename").placeholder = kadai_filename;
+				// localStorageから保存してあるコードを取得してエディタ（右側）に貼り付け
+				const txt = localStorage.getItem(kadai_filename);
+				if (txt !== null) {
+					mergely.rhs(txt);
+				}
+
+				// 課題のクエスト一覧をselect要素に追加する
+				Object.entries(kadai_quests[kadai_filename]).forEach(([filename, encoded_txt], i) => {
+					kadai_quest_elem.appendChild([
+						document.createElement("option"),
+						e => e.value = encoded_txt,
+						e => e.textContent = filename,
+					].a2e());
+				})
+				// 課題のクエストが選ばれたとき
+				kadai_quest_elem.addEventListener("change", e => {
+					// 選択が解除されたとき
+					if (kadai_quest_elem.value.length === 0) {
+						// 課題ファイルの方が選択されたときを実行する、結果的にエディタ（左側）がプログラムに戻る）
+						kadai_filename_elem.dispatchEvent(new Event("change"));
+						return;
+					}
+					// クエストが選択されたとき、クエスト文をデコード
+					const decoded = decodeURIComponent(escape(atob(kadai_quest_elem.value)));
+					// エディタ（左側）に貼り付け
+					mergely.lhs(decoded);
+					// mergelyのコピー禁止、背景色を変更
+					update_mergely_user_setting(kadai_quest_elem.options[kadai_quest_elem.selectedIndex].textContent);
+				});
+			}
+		});
+
+		// mergelyのエディタでは改行時に自動インデントが働き、前の行のインデントが引き継がれます。
+		// 一方、VS Codeのフォーマッターで整形されたサンプルコードでは、行末のスペースが削除されるため、何もない行は\nだけになります。
+		// その結果、ユーザーが書いたコードとサンプルコードの間に不要な差分が表示されてしまいます。
+		// 差分を無視する方法として、mergelyでホワイトスペースを無視する設定もありますが、たとえば < /h1> のように不要なスペースがあっても差分が検出されなくなってしまいます。
+		// そこで、mergelyはスペースを含めて差分を判定する設定にし、フォーマッターが削除したインデントだけの行を復元するコードを追加しました。
+		const add_indent_to_emply_line = (text) => {
+			const cr = "\r\n";
+			text = text.replace(/\t/g, "  ");
+			const get_indent = (text) => {
+				const match = text.match(/^ */);
+				return match ? match[0].length : 0;
+			}
+			const lines = text.split(cr);
+			let ret = lines[0];
+			let indent = get_indent(lines[0]);
+			for (let l = 1; l < lines.length; l += 1) {
+				if (lines[l].length === 0) {
+					ret += cr + " ".repeat(indent);
+				} else {
+					ret += cr + lines[l];
+					indent = get_indent(lines[l]);
+				}
+			}
+			return ret;
+		};
+
+
+		// download ボタン
+		document.getElementById("download_button").addEventListener("click", e => {
+			const kadai_filename = kadai_filename_elem.options[kadai_filename_elem.selectedIndex].textContent;
+			const blob = new Blob([mergely.cm("rhs").getValue()], { type: "text/html" });
+			const link = document.createElement("a");
+			link.href = URL.createObjectURL(blob);
+			const filename = document.getElementById("download_filename");
+			link.download = filename.value === "" ? filename.placeholder : filename.value;
+			link.click();
+			URL.revokeObjectURL(link.href);
+		});
+
+		// スクリーンに送る
+		import { CommClient } from "./libs/CommClient.mjs";
+		await CommClient.init(`html_gallery_client_${Date.now()}`, {
+			server_cmd: msg => {
+				CommClient.send({ cmd: "set_type", type: "controller" });
+			},
+		})
+		document.getElementById("submit_to_screen").addEventListener("click", e => {
+			if (confirm("HTMLの表示をスクリーンに送信します。よろしいですか？")) {
+				CommClient.send({ to_id: "cameras", cmd: "text", data: mergely.cm("rhs").getValue() });
+			}
+		});
+
+		// html文字をrenderしてポップアップで表示する。
+		// renderにはhtml2canvas, popupにはlightbox2を使用する。
+		const preview = async (html_string) => {
+			const div = document.createElement("div");
+			div.innerHTML = html_string.trim();
+			div.style.position = "absolute";
+			div.style.zIndex = -1;
+			document.body.appendChild(div);
+
+			const canvas = await html2canvas(div, { windowWidth: window.innerWidth * 0.8 });
+			div.remove();
+
+			const link = document.getElementById("lightbox2_popup");
+			link.href = canvas.toDataURL("image/png");
+			link.click();
+		};
+
+		// checkbox付きのdropdownlist
+		tippy('#menu-btn', {
+			content: document.getElementById('menu-content'),
+			allowHTML: true,
+			interactive: true,
+			trigger: 'click',
+			placement: 'bottom-start',
+			arrow: false,
+			offset: [0, 0],
+			onMount(instance) {
+				document.getElementById('menu-content').style.display = "block";
+			},
+			onHide(instance) {
+				document.getElementById('menu-content').style.display = "none";
+			},
+		});
+
+		// footerの最小化ボタン
+		const footer_elem = document.getElementById("footer");
+		const footer_toggle_elem = document.getElementById("footer-toggle");
+		footer_toggle_elem.addEventListener("click", e => {
+			const attrs = [
+				["縮小", "30vh", "🔽"],
+				["最大化", "5vh", "🔼"],
+			];
+			const name = footer_toggle_elem.title;
+			const idx = 1 - attrs.findIndex(e => e[0] === name);
+
+			footer_elem.style.height = attrs[idx][1];
+			footer_toggle_elem.textContent = attrs[idx][2];
+			footer_toggle_elem.title = attrs[idx][0];
+		});
+		footer_elem.addEventListener("transitionend", e => {
+			if (e.propertyName === "height") {
+				mergely.resize();
+			}
+		});
+
+		// mergelyの左側を一時的に最小化するボタン
+		const build_mergely_collapseLeft = () => {
+			const left_panel = document.querySelectorAll(".CodeMirror")[0];
+			left_panel.style.position = "relative";
+			left_panel.style.transition = "width 0.5s ease";
+			const toggle_btn = [
+				document.createElement("button"),
+				e => e.textContent = "🔽",
+				e => e.classList.add("icon-button"),
+				e => e.style.position = "absolute",
+				e => e.style.display = "inline-block",
+				e => e.style.top = "2px",
+				e => e.style.right = "0px",
+				e => e.style.transform = "translateX(-50%) rotate(90deg)",
+				e => e.addEventListener("click", e => {
+					toggle();
+				}),
+			].a2e();
+			left_panel.appendChild(toggle_btn);
+
+			const toggle = () => {
+				const w = ["100%", "5%"];
+				const cur = left_panel.style.width || w[0];
+
+				left_panel.style.width = cur === w[0] ? w[1] : w[0];
+				if (left_panel.style.width === w[0]) {
+					toggle_btn.style.transform = "translateX(-50%) rotate(90deg)";
+				} else {
+					toggle_btn.style.transform = "translateX(-50%) rotate(-90deg)";
+				}
+			}
+		}
+		build_mergely_collapseLeft();
+
+
+
+		// 初期の説明ダイアログ
+		const show_instruction = async () => {
+			// await Swal.fire({
+			//   text: "任意課題まで含めてすべての改造を行うと、このようになります。",
+			//   imageUrl: "kadai_imgs/js_08_invader.gif",
+			// });
+
+			await Swal.fire("まず課題ファイルを選択し、左のプログラムを右に書き写してください。これはコピーはできません。");
+			await Swal.fire("次に、改造要求(課題選択の横にあります)を1つずつ選んで、プログラムを改造していってください。");
+			await Swal.fire("改造要求にかかれているプログラムは、コピーできます。")
+
+			await Swal.fire("改造が完了したら「課題チェック」、OKなら右上のdownloadボタンでダウンロードしておいてください。");
+			await Swal.fire("すべての課題のチェックが終わったら、ダウンロードしたファイルをClassroomで提出してください。");
+
+			// await Swal.fire("すべての改造を施したhtmlファイルをダウンロードして、Classroomで提出してください。");
+		}
+		document.getElementById("instruction").addEventListener("click", e => show_instruction());
+		if (html_params.create_encoded_html === undefined) {
+			// show_instruction();
+		}
+
+		// モデル化と要求開発で、JavaScript演習を行うために、
+		// プレビューはきれいに動作しない、スクリーンに送るは必要ないため
+		// カットする。
+		// const style_elem = document.querySelector("style");
+		// ["final_preview_button", "submit_to_screen"].forEach(e => {
+		//   style_elem.appendChild(document.createTextNode(`
+		//       #${e} { display: none !important; }
+		//     `))
+		// });
+
+	</script>
+</body>
+
+</html>
