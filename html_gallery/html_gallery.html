@@ -120,7 +120,7 @@
         };
 
         // URLparameter
-console.log("search",location.search)
+        console.log("search", location.search)
         const html_params = [...new URLSearchParams(location.search).entries()].
             reduce((obj, e) => ({ ...obj, [e[0]]: e[1] }), {});
         console.log("html parameters", html_params);
@@ -284,7 +284,9 @@ console.log("search",location.search)
             const filename_elem = document.getElementById("download_filename");
             link.download = filename_elem.value === "" ? filename_elem.placeholder : filename_elem.value;
             link.click();
-            URL.revokeObjectURL(link.href);
+            setTimeout(() => {
+                URL.revokeObjectURL(link.href);
+            }, 100);
         })
 
         // iframeのサイズを調整する関数(未使用)
